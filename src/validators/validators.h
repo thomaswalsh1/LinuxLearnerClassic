@@ -26,21 +26,21 @@ int validate_cut_fields(Exercise *ex);
 int validate_cut_only_delimited(Exercise *ex);
 
 // Sort validators
-int validate_sort_check(void);
-int validate_sort_ignore_case(void);
-int validate_sort_by_field(void);
-int validate_sort_month(void);
-int validate_sort_numeric(void);
-int validate_sort_output(void);
-int validate_sort_reverse(void);
-int validate_sort_combined(void);
+int validate_sort_check(Exercise *ex);
+int validate_sort_ignore_case(Exercise *ex);
+int validate_sort_by_field(Exercise *ex);
+int validate_sort_month(Exercise *ex);
+int validate_sort_numeric(Exercise *ex);
+int validate_sort_output(Exercise *ex);
+int validate_sort_reverse(Exercise *ex);
+int validate_sort_combined(Exercise *ex);
 
 // Wc validators
-int validate_wc_bytes(void);
-int validate_wc_lines(void);
-int validate_wc_words(void);
-int validate_wc_chars(void);
-int validate_wc_max_line_length(void);
+int validate_wc_bytes(Exercise *ex);
+int validate_wc_lines(Exercise *ex);
+int validate_wc_words(Exercise *ex);
+int validate_wc_chars(Exercise *ex);
+int validate_wc_max_line_length(Exercise *ex);
 
 // Cat validators
 int validate_cat_show_all(Exercise *ex);
@@ -51,9 +51,9 @@ int validate_cat_show_tabs(Exercise *ex);
 int validate_cat_show_nonprinting(Exercise *ex);
 
 // Sed validators
-int validate_sed_expression(void);
-int validate_sed_file(void);
-int validate_sed_extended_regex(void);
+int validate_sed_expression(Exercise *ex);
+int validate_sed_file(Exercise *ex);
+int validate_sed_extended_regex(Exercise *ex);
 
 // Awk validators
 int validate_awk_field_separator(Exercise *ex);

@@ -25,49 +25,31 @@ static char* read_entire_file(const char *path) {
 }
 
 // Exercise 1: Expression option - verify -e option output with multiple substitutions
-int validate_sed_expression(void) {
-    if (!file_exists("output.txt")) return 0;
-    
-    char *content = read_entire_file("output.txt");
-    if (!content) return 0;
-    
-    // Should contain substitutions applied by -e commands
-    // At minimum, should have modified content with THE in uppercase
-    int has_modification = (strstr(content, "THE") != NULL || 
-                           strstr(content, "the") == NULL);
-    int is_valid = has_modification && strlen(content) > 0;
-    
-    free(content);
-    return is_valid;
+int validate_sed_expression(Exercise *ex) {
+    char *output = ex->last_command_output;
+    return !strstr(output, "the") && !strstr(output, "The") && strstr(output, "THE");
 }
 
 // Exercise 2: File option - verify -f option reads script from file
-int validate_sed_file(void) {
-    if (!file_exists("output.txt")) return 0;
-    
-    char *content = read_entire_file("output.txt");
-    if (!content) return 0;
-    
-    // Should contain substitutions from the script.sed file
-    // Expect APPLE, BANANA, CHERRY in uppercase
-    int has_substitutions = (strstr(content, "APPLE") != NULL ||
-                            strstr(content, "BANANA") != NULL ||
-                            strstr(content, "CHERRY") != NULL);
-    
-    free(content);
-    return has_substitutions;
+int validate_sed_file(Exercise *ex) {
+    char *output = ex->last_command_output;
+    return !strstr(output, "apple") && !strstr(output, "banana") && strstr(output, "date");
 }
 
 // Exercise 3: Extended regex - verify -r option enables extended regex patterns
-int validate_sed_extended_regex(void) {
-    if (!file_exists("output.txt")) return 0;
-    
-    char *content = read_entire_file("output.txt");
-    if (!content) return 0;
-    
-    // Should contain NUM replacing the numeric values
-    int has_num_replacement = strstr(content, "NUM") != NULL;
-    
-    free(content);
-    return has_num_replacement;
+int validate_sed_extended_regex(Exercise *ex) {
+    char *output = ex->last_command_output;
+    // there's probably a better way to do this
+    return strstr(output, "NUM") &&
+        !(strstr(output, "0") ||
+        strstr(output, "1") ||
+        strstr(output, "2") ||
+        strstr(output, "3") ||
+        strstr(output, "4") ||
+        strstr(output, "5") ||
+        strstr(output, "6") ||
+        strstr(output, "7") ||
+        strstr(output, "8") ||
+        strstr(output, "9")
+    );
 }
