@@ -3,30 +3,23 @@
 #include <unistd.h>
 #include <string.h>
 
-int validate_cut_characters(void) {
-    return file_exists("output.txt") &&
-           file_contains("output.txt", "123");
+int validate_cut_characters(Exercise *ex) {
+    return check_first_line(ex->last_command_output, "12345");
 }
 
-int validate_cut_bytes(void) {
-    return file_exists("output.txt") &&
-           file_contains("output.txt", "AB");
+int validate_cut_bytes(Exercise *ex) {
+    return check_first_line(ex->last_command_output, "AB");
 }
 
-int validate_cut_delimiter(void) {
-    return file_exists("output.txt") &&
-           file_contains("output.txt", "alice") &&
-           file_contains("output.txt", "bob");
+int validate_cut_delimiter(Exercise *ex) {
+    return check_first_line(ex->last_command_output, "alice");
 }
 
-int validate_cut_fields(void) {
-    return file_exists("output.txt") &&
-           file_contains("output.txt", "John") &&
-           file_contains("output.txt", "Mike");
+int validate_cut_fields(Exercise *ex) {
+    return check_first_line(ex->last_command_output, "John	2023-01-15");
 }
 
-int validate_cut_only_delimited(void) {
-    return file_exists("output.txt") &&
-           file_contains("output.txt", "one") &&
-           !file_contains("output.txt", "NODASH");
+int validate_cut_only_delimited(Exercise *ex) {
+    if (strstr(ex->last_command_output, "NODASHRECORD")) return 0;
+    return check_first_line(ex->last_command_output, "one");
 }

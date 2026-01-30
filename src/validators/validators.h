@@ -9,21 +9,21 @@ int file_contains(const char *path, const char *needle);
 int check_first_line(const char *output, const char *expected_line);
 
 // Grep validators
-int validate_grep_basic(void);
-int validate_grep_count(void);
-int validate_grep_dir_skip(void);
-int validate_grep_extended(void);
-int validate_grep_ignore_case(void);
-int validate_grep_recursive(void);
-int validate_grep_invert(void);
-int validate_grep_combo(void);
+int validate_grep_basic(Exercise *ex);
+int validate_grep_count(Exercise *ex);
+int validate_grep_dir_skip(Exercise *ex);
+int validate_grep_extended(Exercise *ex);
+int validate_grep_ignore_case(Exercise *ex);
+int validate_grep_recursive(Exercise *ex);
+int validate_grep_invert(Exercise *ex);
+int validate_grep_combo(Exercise *ex);
 
 // Cut validators
-int validate_cut_characters(void);
-int validate_cut_bytes(void);
-int validate_cut_delimiter(void);
-int validate_cut_fields(void);
-int validate_cut_only_delimited(void);
+int validate_cut_characters(Exercise *ex);
+int validate_cut_bytes(Exercise *ex);
+int validate_cut_delimiter(Exercise *ex);
+int validate_cut_fields(Exercise *ex);
+int validate_cut_only_delimited(Exercise *ex);
 
 // Sort validators
 int validate_sort_check(void);
@@ -43,12 +43,12 @@ int validate_wc_chars(void);
 int validate_wc_max_line_length(void);
 
 // Cat validators
-int validate_cat_show_all(void);
-int validate_cat_show_ends(void);
-int validate_cat_number(void);
-int validate_cat_squeeze_blank(void);
-int validate_cat_show_tabs(void);
-int validate_cat_show_nonprinting(void);
+int validate_cat_show_all(Exercise *ex);
+int validate_cat_show_ends(Exercise *ex);
+int validate_cat_number(Exercise *ex);
+int validate_cat_squeeze_blank(Exercise *ex);
+int validate_cat_show_tabs(Exercise *ex);
+int validate_cat_show_nonprinting(Exercise *ex);
 
 // Sed validators
 int validate_sed_expression(void);
