@@ -19,7 +19,7 @@ LinuxLearner v0.1.1 is built from source. Follow the instructions based on your 
 ```
 
 ### Building Binaries
-- Using x86_64 archietecture:
+- Using x86_64 architecture:
 ```bash
   make all
 ```
