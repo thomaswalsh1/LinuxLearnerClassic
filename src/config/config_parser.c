@@ -1,5 +1,6 @@
 #include "config_parser.h"
 #include "../validators/validators.h"
+#include "exercises.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +17,7 @@
 typedef struct
 {
     const char *name;
-    int (*func)(void);
+    int (*func)(Exercise *ex);
 } ValidatorEntry;
 
 static ValidatorEntry validator_registry[] = {

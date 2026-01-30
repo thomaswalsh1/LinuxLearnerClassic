@@ -1,9 +1,12 @@
 #ifndef VALIDATORS_H
 #define VALIDATORS_H
 
+#include "exercises.h"
+
 // Generic reusable validators
 int file_exists(const char *path);
 int file_contains(const char *path, const char *needle);
+int check_first_line(const char *output, const char *expected_line);
 
 // Grep validators
 int validate_grep_basic(void);
@@ -53,8 +56,8 @@ int validate_sed_file(void);
 int validate_sed_extended_regex(void);
 
 // Awk validators
-int validate_awk_field_separator(void);
-int validate_awk_file(void);
-int validate_awk_sandbox(void);
+int validate_awk_field_separator(Exercise *ex);
+int validate_awk_file(Exercise *ex);
+int validate_awk_sandbox(Exercise *ex);
 
 #endif

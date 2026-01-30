@@ -13,6 +13,9 @@ typedef struct Exercise {
     char sandbox_dir[512];
     int is_enabled;
     int is_completed;
+
+    char last_user_command[1024];
+    char last_command_output[8192]; 
 } Exercise;
 
 // Global exercises array and count

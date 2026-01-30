@@ -3,13 +3,18 @@
 #include "screens.h"
 #include "app_state.h"
 #include "config_parser.h"
-#include <ncurses.h>
-#include <stdlib.h>
+#include "exercises.h"
 #include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <stdlib.h>
 #include <stdio.h>
-#include <sys/stat.h>
 #include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <ncurses.h>
 #include <errno.h>
+#include <ncurses.h>
 
 char project_root[512];
 
@@ -118,12 +123,12 @@ ExerciseResult run_exercise(Exercise *ex)
         return ACTION_EXIT;
     }
 
-    // change to exercise sandbox
-    if (chdir(ex->lab_dir) != 0)
-    {
-        perror("chdir to correct exercise");
-        return ACTION_EXIT;
-    }
+    // // change to exercise sandbox
+    // if (chdir(ex->lab_dir) != 0)
+    // {
+    //     perror("chdir to correct exercise");
+    //     return ACTION_EXIT;
+    // }
 
     // write the instructions
     show_instructions(ex);
@@ -137,13 +142,14 @@ ExerciseResult run_exercise(Exercise *ex)
             show_instructions(ex);
         }
         if (ch == 's' || ch == 'S')
-            launch_shell();
+            launch_sandbox_shell(ex);
         if (ch == 27)
             return ACTION_EXIT;
         if (ch == 127 || ch == KEY_BACKSPACE)
             return ACTION_RETURN;
-        if (ch == '\n' || ch == KEY_ENTER) {
-            if (ex->validate())
+        if (ch == '\n' || ch == KEY_ENTER)
+        {
+            if (ex->validate(ex))
             {
                 // success
                 mark_complete(ex);
@@ -156,6 +162,139 @@ ExerciseResult run_exercise(Exercise *ex)
             }
         }
     }
+}
+
+int create_sandbox(char *out_path, size_t size)
+{
+    snprintf(out_path, size, "/tmp/lab_%d_XXXXXX", getpid());
+    return mkdtemp(out_path) != NULL;
+}
+
+void populate_sandbox(const char *src, const char *dst)
+{
+    char cmd[1024];
+    snprintf(cmd, sizeof(cmd), "cp -a %s/. %s/", src, dst);
+    system(cmd); // OK here since YOU control inputs
+}
+
+void launch_sandbox_shell(Exercise *ex)
+{
+    char sandbox[512];
+
+    if (!create_sandbox(sandbox, sizeof(sandbox)))
+    {
+        perror("sandbox");
+        return;
+    }
+
+    populate_sandbox(ex->lab_dir, sandbox);
+
+    printf("Current assignment -> %s\n", ex->lab_dir);
+
+    def_prog_mode();
+    endwin(); // temporarily exit ncurses
+
+    printf("\n--- LAB SHELL (SANDBOXED) ---\n");
+    printf("Type commands. Type 'exit' to return.\n\n");
+
+    char captured_output[1024] = {0}; // store last command's stdout
+
+    while (1)
+    {
+        char *cmd = NULL;
+        size_t len = 0;
+        printf("sandbox $ ");
+        fflush(stdout);
+
+        if (getline(&cmd, &len, stdin) == -1)
+        {
+            free(cmd);
+            break;
+        }
+
+        // remove trailing newline
+        cmd[strcspn(cmd, "\n")] = 0;
+
+        if (strncmp(cmd, "exit", 4) == 0)
+        {
+            free(cmd);
+            break;
+        }
+
+        int pipefd[2];
+        if (pipe(pipefd) == -1)
+        {
+            perror("pipe");
+            free(cmd);
+            continue;
+        }
+
+        pid_t pid = fork();
+        if (pid == 0)
+        {
+            // Child process
+            chdir(sandbox);
+            clearenv();
+            setenv("PATH", "/bin:/usr/bin", 1);
+
+            setuid(65534); // nobody
+            setgid(65534);
+
+            // redirect stdout/stderr to pipe
+            close(pipefd[0]); // close read end
+            dup2(pipefd[1], STDOUT_FILENO);
+            dup2(pipefd[1], STDERR_FILENO);
+            close(pipefd[1]);
+
+            execl("/bin/sh", "sh", "-c", cmd, NULL);
+            perror("exec");
+            _exit(1);
+        }
+
+        // Parent process
+        close(pipefd[1]); // close write end
+        ssize_t n;
+        size_t offset = 0;
+        char buffer[4096];
+
+        // Clear captured_output for this command
+        memset(captured_output, 0, sizeof(captured_output));
+
+        // Read child's stdout/stderr
+        while ((n = read(pipefd[0], buffer, sizeof(buffer)-1)) > 0)
+        {
+            buffer[n] = '\0';
+            printf("%s", buffer); // show output live
+
+            // store in captured_output
+            if (offset + n < sizeof(captured_output)-1)
+            {
+                memcpy(captured_output + offset, buffer, n);
+                offset += n;
+                captured_output[offset] = '\0';
+            }
+        }
+        close(pipefd[0]);
+
+        // Wait for child to finish
+        waitpid(pid, NULL, 0);
+
+        // Store the last user command and its output for validation
+        strncpy(ex->last_user_command, cmd, sizeof(ex->last_user_command)-1);
+        ex->last_user_command[sizeof(ex->last_user_command)-1] = '\0';
+        strncpy(ex->last_command_output, captured_output, sizeof(ex->last_command_output)-1);
+        ex->last_command_output[sizeof(ex->last_command_output)-1] = '\0';
+
+        free(cmd);
+    }
+
+    // cleanup sandbox
+    char rm[600];
+    snprintf(rm, sizeof(rm), "rm -rf %s", sandbox);
+    system(rm);
+
+    reset_prog_mode();
+    refresh();
 }
 
 void launch_shell(void)
@@ -184,7 +323,7 @@ Exercise *run_exercise_list_and_select(int *selected_index)
     int border_bottom = LINES - 5;
     int visible_spots = border_bottom - border_top - 1;
     int current_index = *selected_index;
-
+    
     // Initial draw - draw everything once
     show_exercise_list_commentary(border_top, border_bottom);
     show_exercise_list_contents(exercises, border_top,

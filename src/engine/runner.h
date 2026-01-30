@@ -27,4 +27,6 @@ void reset_single_exercise(Exercise *ex);
 // road-to-v0.2.0
 Exercise* run_exercise_list_and_select(int *selected_index);
 
+void launch_sandbox_shell(Exercise *ex);
+
 #endif

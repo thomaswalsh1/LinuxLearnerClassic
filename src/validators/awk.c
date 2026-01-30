@@ -1,4 +1,5 @@
 #include "validators.h"
+#include "exercises.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,44 +26,25 @@ static char* read_entire_file(const char *path) {
 }
 
 // Exercise 1: Field separator - verify -F option correctly parses delimited fields
-int validate_awk_field_separator(void) {
-    if (!file_exists("output.txt")) return 0;
-    
-    char *content = read_entire_file("output.txt");
-    if (!content) return 0;
-    
-    // Should contain extracted fields (names and jobs)
-    int has_output = (strstr(content, "John") != NULL ||
-                     strstr(content, "Engineer") != NULL) && strlen(content) > 0;
-    
-    free(content);
-    return has_output;
+int validate_awk_field_separator(Exercise *ex) {
+    if (!ex || !ex->last_command_output)
+        return 0;
+
+    char *output = ex->last_command_output;
+    return check_first_line(output, "JohnEngineer");
 }
 
 // Exercise 2: File program - verify -f option reads awk program from file
-int validate_awk_file(void) {
-    if (!file_exists("output.txt")) return 0;
-    
-    char *content = read_entire_file("output.txt");
-    if (!content) return 0;
-    
-    // Should contain output from the awk program processing data
-    int has_output = strlen(content) > 0;
-    
-    free(content);
-    return has_output;
+int validate_awk_file(Exercise *ex) {
+    return check_first_line(ex->last_command_output, "Apple12");
 }
 
 // Exercise 3: Sandbox mode - verify -s option executes in sandbox
-int validate_awk_sandbox(void) {
-    if (!file_exists("output.txt")) return 0;
-    
-    char *content = read_entire_file("output.txt");
-    if (!content) return 0;
-    
-    // Should contain numeric results from the calculation
-    int has_output = strlen(content) > 0;
-    
-    free(content);
-    return has_output;
+int validate_awk_sandbox(Exercise *ex)
+{
+    if (!ex || !ex->last_command_output)
+        return 0;
+
+    char *output = ex->last_command_output;
+    return check_first_line(output, "JohnEngineer");
 }
