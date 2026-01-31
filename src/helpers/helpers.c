@@ -269,6 +269,9 @@ void print_options(WINDOW *win, const enum Option options[])
         case GET_HINT:
             text = "Press H to get a hint";
             break;
+        case STUDY_SETS:
+            text = "Press M to manage study sets";
+            break;
         case RETURN_SETTINGS:
             text = "Press BACKSPACE to return to settings";
             break;

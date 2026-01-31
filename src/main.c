@@ -8,6 +8,7 @@
 #include "app_state.h"
 
 int last_top_index = 0;
+StudySet *current_study_set = NULL;
 
 int main(void)
 {
@@ -25,8 +26,8 @@ int main(void)
         use_default_colors(); // optional, but nice
     }
 
-    init_pair(COLOR_TITLE, COLOR_CYAN, -1); 
-    
+    init_pair(COLOR_TITLE, COLOR_CYAN, -1);
+
     // initializing project root
     init_project_root();
 
@@ -34,12 +35,19 @@ int main(void)
     exercises = exercise_list.exercises; // unloading exercises to global variable
     exercise_count = exercise_list.count;
 
+    // study set state
+    current_study_set = malloc(sizeof(StudySet));
+    *current_study_set = get_default_study_set();
+
     // app state
     AppState current_app_state = APP_TITLE;
 
     // exercise state
     Exercise *current_exercise = NULL;
     int current_exercise_index = 0;
+
+    // change our exercises by the study set
+    modify_by_study_set();
 
     // main loop
     while (current_app_state != APP_EXIT)
@@ -122,29 +130,56 @@ int main(void)
             break;
         // running exercise
         case APP_EXERCISE:
-            if (current_exercise == NULL)
-                current_exercise = &exercises[current_exercise_index];
-            while (current_exercise->is_completed == 1)
+            // Find the next enabled and not completed exercise
+            while (current_exercise_index < exercise_count &&
+                   (!exercises[current_exercise_index].is_enabled ||
+                    exercises[current_exercise_index].is_completed))
             {
-                current_exercise = &exercises[++current_exercise_index];
+                current_exercise_index++;
             }
+
+            if (current_exercise_index >= exercise_count)
+            {
+                int all_done = 1;
+                for (int i = 0; i < exercise_count; ++i)
+                {
+                    if (exercises[i].is_enabled && !exercises[i].is_completed)
+                    {
+                        all_done = 0;
+                        break;
+                    }
+                }
+                if (all_done)
+                {
+                    int ch;
+                    show_all_exercises_completed();
+
+                    while (1)
+                    {
+                        ch = getch();
+                        if (ch == KEY_RESIZE)
+                        {
+                            show_all_exercises_completed();
+                        }
+                        if (ch == 127 || ch == KEY_BACKSPACE)
+                        {
+                            break;
+                        }
+                    }
+                    current_exercise_index = 0;
+                }
+                current_app_state = APP_MAIN_MENU;
+                break;
+            }
+
+            current_exercise = &exercises[current_exercise_index];
             ExerciseResult result = run_exercise(current_exercise);
+
             if (result == ACTION_CONTINUE)
             {
-                int next_index = current_exercise_index + 1;
-                while (next_index < exercise_count && !exercises[next_index].is_enabled)
-                    next_index++;
-
-                if (next_index < exercise_count)
-                {
-                    current_exercise = &exercises[next_index];
-                    current_exercise_index = next_index;
-                    current_app_state = APP_EXERCISE;
-                }
-                else
-                {
-                    current_app_state = APP_MAIN_MENU;
-                }
+                current_exercise_index++;
+                // The loop at the top will skip to the next valid exercise
+                current_app_state = APP_EXERCISE;
             }
             else if (result == ACTION_RETURN)
             {

@@ -53,4 +53,6 @@ enum PersistentOption {
  */
 void modify_exercise_data(Exercise *ex, const enum PersistentOption option);
 
+StudySet get_default_study_set(void);
+
 #endif

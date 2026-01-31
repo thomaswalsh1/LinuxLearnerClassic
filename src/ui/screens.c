@@ -145,7 +145,7 @@ void show_exercise_menu(void)
 
 void show_exercise_list_commentary(int top_window_border, int bottom_window_border)
 {
-    const enum Option options[] = {RETURN_MENU, SELECT_EXERCISE, OPTIONS_END};
+    const enum Option options[] = {RETURN_MENU, STUDY_SETS, SELECT_EXERCISE, OPTIONS_END};
 
     clear();
     print_left_auto(stdscr, 1, "This is the exercise list.");
@@ -233,6 +233,9 @@ void show_main_menu(void) {
     print_center_auto(stdscr, 2, "Main Menu");
     mvhline(3, 2, ACS_HLINE, COLS - 4);
     print_left_auto(stdscr, 7, "Welcome to the main menu of LinuxLearner.");
+    char study_set_string[256];
+    snprintf(study_set_string, sizeof(study_set_string), "Current study set: %s", current_study_set->name);
+    print_left_auto(stdscr, 9, study_set_string);
     print_options(stdscr, options);
     refresh();
 }

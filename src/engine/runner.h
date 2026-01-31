@@ -29,4 +29,7 @@ Exercise* run_exercise_list_and_select(int *selected_index);
 
 void launch_sandbox_shell(Exercise *ex);
 
+void modify_by_study_set(void);
+
+StudySet *run_study_set_menu(void);
 #endif

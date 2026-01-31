@@ -594,3 +594,64 @@ void modify_exercise_data(Exercise *ex, const enum PersistentOption option)
         remove(temp_path);
     }
 }
+
+StudySet get_default_study_set(void) {
+    StudySet set = {0};
+    char set_name[64] = {0};
+    char set_path[256] = {0};
+    char line[256];
+
+
+    if (chdir(project_root) != 0)
+    {
+        perror("chdir to project root");
+        return;
+    }
+
+    FILE *fp = fopen("saves/sets/default.conf", "r");
+    if (!fp) {
+        perror("Failed to open saves/sets/default.conf");
+        return set;
+    }
+    
+    while (fgets(line, sizeof(line), fp)) {
+        line[strcspn(line, "\n")] = '\0';
+        trim_string(line);
+        if (strncmp(line, "default=", 8) == 0) {
+            strncpy(set_name, line + 8, sizeof(set_name) - 1);
+            trim_string(set_name);
+            break;
+        }
+    }
+    fclose(fp);
+
+    if (set_name[0] == '\0') {
+        perror("No default set");
+        return set;
+    }
+
+    snprintf(set_path, sizeof(set_path), "saves/sets/%s.conf", set_name);
+
+    fp = fopen(set_path, "r");
+    if (!fp) {
+        perror("Failed to open study set file");
+        return set;
+    }
+
+    // Allocate space for exercise paths
+    set.exercise_paths = malloc(sizeof(char*) * MAX_EXERCISES);
+    set.exercise_count = 0;
+    strncpy(set.name, set_name, sizeof(set.name) - 1);
+
+    // Read each exercise path
+    while (fgets(line, sizeof(line), fp) && set.exercise_count < MAX_EXERCISES) {
+        line[strcspn(line, "\n")] = '\0';
+        trim_string(line);
+        if (line[0] == '\0' || line[0] == '#' || line[0] == ';')
+            continue;
+        set.exercise_paths[set.exercise_count++] = strdup(line);
+    }
+    fclose(fp);
+
+    return set;
+}

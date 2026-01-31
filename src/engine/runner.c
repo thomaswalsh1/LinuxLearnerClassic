@@ -261,13 +261,13 @@ void launch_sandbox_shell(Exercise *ex)
         memset(captured_output, 0, sizeof(captured_output));
 
         // Read child's stdout/stderr
-        while ((n = read(pipefd[0], buffer, sizeof(buffer)-1)) > 0)
+        while ((n = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0)
         {
             buffer[n] = '\0';
             printf("%s", buffer); // show output live
 
             // store in captured_output
-            if (offset + n < sizeof(captured_output)-1)
+            if (offset + n < sizeof(captured_output) - 1)
             {
                 memcpy(captured_output + offset, buffer, n);
                 offset += n;
@@ -280,10 +280,10 @@ void launch_sandbox_shell(Exercise *ex)
         waitpid(pid, NULL, 0);
 
         // Store the last user command and its output for validation
-        strncpy(ex->last_user_command, cmd, sizeof(ex->last_user_command)-1);
-        ex->last_user_command[sizeof(ex->last_user_command)-1] = '\0';
-        strncpy(ex->last_command_output, captured_output, sizeof(ex->last_command_output)-1);
-        ex->last_command_output[sizeof(ex->last_command_output)-1] = '\0';
+        strncpy(ex->last_user_command, cmd, sizeof(ex->last_user_command) - 1);
+        ex->last_user_command[sizeof(ex->last_user_command) - 1] = '\0';
+        strncpy(ex->last_command_output, captured_output, sizeof(ex->last_command_output) - 1);
+        ex->last_command_output[sizeof(ex->last_command_output) - 1] = '\0';
 
         free(cmd);
     }
@@ -323,7 +323,7 @@ Exercise *run_exercise_list_and_select(int *selected_index)
     int border_bottom = LINES - 5;
     int visible_spots = border_bottom - border_top - 1;
     int current_index = *selected_index;
-    
+
     // Initial draw - draw everything once
     show_exercise_list_commentary(border_top, border_bottom);
     show_exercise_list_contents(exercises, border_top,
@@ -371,6 +371,9 @@ Exercise *run_exercise_list_and_select(int *selected_index)
             last_top_index = top_index;
             return NULL;
         }
+        else if (ch == 'm' || ch == 'M') {
+            current_study_set = run_study_set_menu();
+        }
         else if (ch == KEY_RESIZE)
         {
             border_bottom = LINES - 5;
@@ -388,4 +391,29 @@ Exercise *run_exercise_list_and_select(int *selected_index)
                                         current_index, top_index, visible_spots);
         }
     }
+}
+
+void modify_by_study_set(void)
+{
+    // if there isn't a current study set
+    if (current_study_set == NULL)
+        return;
+
+    for (int i = 0; i < exercise_count; i++)
+    {
+        exercises[i].is_enabled = 0;
+
+        for (int j = 0; j < current_study_set->exercise_count; ++j)
+        {
+            if (exercises[i].lab_dir && strcmp(exercises[i].lab_dir, current_study_set->exercise_paths[j]) == 0)
+            {
+                exercises[i].is_enabled = 1;
+                break;
+            }
+        }
+    }
+}
+
+StudySet *run_study_set_menu(void) {
+    
 }

@@ -18,8 +18,15 @@ typedef struct Exercise {
     char last_command_output[8192]; 
 } Exercise;
 
+typedef struct StudySet{
+    char name[64];
+    char **exercise_paths;
+    int exercise_count;
+} StudySet;
+
 // Global exercises array and count
 extern Exercise *exercises;
 extern int exercise_count;
-
+extern StudySet *study_sets;
+extern StudySet *current_study_set;
 #endif

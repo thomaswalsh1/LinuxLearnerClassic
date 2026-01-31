@@ -42,6 +42,7 @@ enum Option
     RETURN_SETTINGS,
     CONFIRM_RESET,
     RESET_EXERCISE,
+    STUDY_SETS,
     GET_HINT,
     OPTIONS_END,
 };
