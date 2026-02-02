@@ -8,6 +8,7 @@
 #include "app_state.h"
 
 int last_top_index = 0;
+int last_top_index_study_set = 0;
 StudySet *current_study_set = NULL;
 
 int main(void)
@@ -38,6 +39,22 @@ int main(void)
     // study set state
     current_study_set = malloc(sizeof(StudySet));
     *current_study_set = get_default_study_set();
+    int current_study_set_index = 0;
+
+    // If no default study set is set, enable all exercises
+    int no_study_set = 0;
+    if (current_study_set == NULL || current_study_set->name[0] == '\0' || current_study_set->exercise_count == 0) {
+        no_study_set = 1;
+        free(current_study_set);
+        current_study_set = NULL;
+        // Enable all exercises
+        for (int i = 0; i < exercise_count; ++i) {
+            exercises[i].is_enabled = 1;
+        }
+    } else {
+        // change our exercises by the study set
+        modify_by_study_set();
+    }
 
     // app state
     AppState current_app_state = APP_TITLE;
@@ -45,9 +62,6 @@ int main(void)
     // exercise state
     Exercise *current_exercise = NULL;
     int current_exercise_index = 0;
-
-    // change our exercises by the study set
-    modify_by_study_set();
 
     // main loop
     while (current_app_state != APP_EXIT)
@@ -96,7 +110,7 @@ int main(void)
             break;
         // exercise list
         case APP_EXERCISE_LIST:
-            current_exercise = run_exercise_list_and_select(&current_exercise_index);
+            current_exercise = run_exercise_list_and_select(&current_exercise_index, &current_study_set_index);
             if (current_exercise != NULL)
             {
                 current_app_state = APP_EXERCISE_METADATA;

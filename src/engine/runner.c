@@ -315,7 +315,7 @@ void launch_shell(void)
     refresh();
 }
 
-Exercise *run_exercise_list_and_select(int *selected_index)
+Exercise *run_exercise_list_and_select(int *selected_index, int *selected_study_set_index)
 {
     int ch;
     int top_index = last_top_index;
@@ -371,8 +371,15 @@ Exercise *run_exercise_list_and_select(int *selected_index)
             last_top_index = top_index;
             return NULL;
         }
-        else if (ch == 'm' || ch == 'M') {
-            current_study_set = run_study_set_menu();
+        else if (ch == 'm' || ch == 'M')
+        {
+            current_study_set = run_study_set_menu(selected_study_set_index);
+            modify_by_study_set();
+            border_bottom = LINES - 5;
+            visible_spots = border_bottom - border_top - 1;
+            show_exercise_list_commentary(border_top, border_bottom);
+            show_exercise_list_contents(exercises, border_top,
+                                        current_index, top_index, visible_spots);
         }
         else if (ch == KEY_RESIZE)
         {
@@ -414,6 +421,98 @@ void modify_by_study_set(void)
     }
 }
 
-StudySet *run_study_set_menu(void) {
-    
+StudySet *run_study_set_menu(int *selected_study_set_index)
+{
+    int ch;
+    StudySetList list = get_study_set_list();
+    int total_sets = list.count + 1; // +1 for NONE
+    StudySet *sets = malloc(sizeof(StudySet) * total_sets);
+    // Insert NONE as the first option
+    memset(&sets[0], 0, sizeof(StudySet));
+    strncpy(sets[0].name, "NONE", sizeof(sets[0].name) - 1);
+    for (int i = 0; i < list.count; ++i) {
+        sets[i + 1] = list.study_sets[i];
+    }
+
+    int top_index = last_top_index_study_set;
+    int border_top = 4;
+    int border_bottom = LINES - 5;
+    int visible_spots = border_bottom - border_top - 1;
+    int current_index = *selected_study_set_index;
+    if (current_index >= total_sets) current_index = 0;
+
+    show_study_set_list_commentary(border_top, border_bottom);
+    show_study_set_list_contents(sets, border_top, current_index, top_index, visible_spots, total_sets);
+
+    int needs_redraw = 0;
+    while (1)
+    {
+        ch = getch();
+
+        if (ch == KEY_UP || ch == 'w' || ch == 'W')
+        {
+            if (current_index > 0)
+            {
+                current_index--;
+                needs_redraw = 1;
+            }
+            if (current_index < top_index)
+            {
+                top_index--;
+                needs_redraw = 1;
+            }
+        }
+        else if (ch == KEY_DOWN || ch == 's' || ch == 'S')
+        {
+            if (current_index < total_sets - 1)
+            {
+                current_index++;
+                needs_redraw = 1;
+            }
+            if (current_index >= top_index + visible_spots)
+            {
+                top_index++;
+                needs_redraw = 1;
+            }
+        }
+        else if (ch == '\n' || ch == KEY_ENTER)
+        {
+            *selected_study_set_index = current_index;
+            last_top_index_study_set = top_index;
+            if (current_index == 0) {
+                // NONE selected: enable all exercises
+                for (int i = 0; i < exercise_count; ++i) {
+                    exercises[i].is_enabled = 1;
+                }
+                free(sets);
+                return NULL;
+            } else {
+                StudySet *selected = &sets[current_index];
+                free(sets);
+                return selected;
+            }
+        }
+        else if (ch == 127 || ch == KEY_BACKSPACE)
+        {
+            last_top_index_study_set = top_index;
+            free(sets);
+            return current_study_set;
+        }
+        else if (ch == KEY_RESIZE)
+        {
+            border_bottom = LINES - 5;
+            visible_spots = border_bottom - border_top - 1;
+            show_study_set_list_commentary(border_top, border_bottom);
+            show_study_set_list_contents(sets, border_top,
+                                        current_index, top_index, visible_spots, total_sets);
+        }
+
+        // Only redraw what changed
+        if (needs_redraw)
+        {
+            // Only redraw the contents, not the commentary
+            show_study_set_list_contents(sets, border_top,
+                                        current_index, top_index, visible_spots, total_sets);
+        }
+    }
 }

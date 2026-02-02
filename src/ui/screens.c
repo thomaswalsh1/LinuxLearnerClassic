@@ -34,10 +34,12 @@ ExerciseResult show_success(void)
         {
             return ACTION_EXIT;
         }
-        if (ch == 127 || ch == KEY_BACKSPACE) {
+        if (ch == 127 || ch == KEY_BACKSPACE)
+        {
             return ACTION_RETURN;
         }
-        if (ch == '\n' || ch == KEY_ENTER) {
+        if (ch == '\n' || ch == KEY_ENTER)
+        {
             return ACTION_CONTINUE;
         }
     }
@@ -72,10 +74,12 @@ ExerciseResult show_failure(const char *hint)
             show_hint = 1;
             continue;
         }
-        if (ch == 127 || ch == KEY_BACKSPACE) {
+        if (ch == 127 || ch == KEY_BACKSPACE)
+        {
             return ACTION_RETURN;
         }
-        if (ch == '\n' || ch == KEY_ENTER) {
+        if (ch == '\n' || ch == KEY_ENTER)
+        {
             return ACTION_RETRY;
         }
     }
@@ -167,14 +171,15 @@ void show_exercise_list_contents(
     int end = top_index + per_page - 1;
     if (end > exercise_count)
         end = exercise_count;
-    
+
     // Clear only the content area (not the whole screen)
     for (int i = top_index; i <= end; i++)
     {
         move(y, 0);
-        clrtoeol();  // Clear only this line
-        
-        if (i == selected_index) {
+        clrtoeol(); // Clear only this line
+
+        if (i == selected_index)
+        {
             attron(A_REVERSE);
             mvwhline(stdscr, y, 0, ' ', COLS - 1);
             mvwprintw(stdscr, y, 0, ">");
@@ -182,23 +187,25 @@ void show_exercise_list_contents(
 
         mvwprintw(stdscr, y, 2, "%s", viewable_exercises[i].title);
         mvwprintw(stdscr, y, 40, "%s", viewable_exercises[i].lab_dir);
-        mvwprintw(stdscr, y, 60, "%s", viewable_exercises[i].is_enabled==1 ? "on" : "off");
+        mvwprintw(stdscr, y, 60, "%s", viewable_exercises[i].is_enabled == 1 ? "on" : "off");
         mvwprintw(stdscr, y, 65, "  |  ");
-        mvwprintw(stdscr, y, 70, "%s", viewable_exercises[i].is_completed==1 ? "done" : "    ");
+        mvwprintw(stdscr, y, 70, "%s", viewable_exercises[i].is_completed == 1 ? "done" : "    ");
 
         // Turn off highlight
-        if (i == selected_index) {
+        if (i == selected_index)
+        {
             attroff(A_REVERSE);
         }
 
         y++;
     }
-    
+
     return_cursor(stdscr);
-    refresh();  // Single refresh after all updates
+    refresh(); // Single refresh after all updates
 }
 
-void show_exercise_selected_menu(Exercise *ex) {
+void show_exercise_selected_menu(Exercise *ex)
+{
     const enum Option options[] = {RETURN_MENU, RESET_EXERCISE, ABLE_EXERCISE, RUN_SINGULAR_EXERCISE, OPTIONS_END};
 
     clear();
@@ -207,10 +214,10 @@ void show_exercise_selected_menu(Exercise *ex) {
     char directory_line[256];
     char completed_line[256];
     snprintf(description_line, sizeof(description_line), "Description: %s", ex->description);
-    snprintf(enabled_line, sizeof(enabled_line), "Enabled: %s", ex->is_enabled==1 ? "On" : "Off");
+    snprintf(enabled_line, sizeof(enabled_line), "Enabled: %s", ex->is_enabled == 1 ? "On" : "Off");
     snprintf(directory_line, sizeof(directory_line), "Directory: %s", ex->lab_dir);
-    snprintf(completed_line, sizeof(completed_line), "Completed: %s", ex->is_completed==1 ? "Yes" : "Not yet finished.");
-    
+    snprintf(completed_line, sizeof(completed_line), "Completed: %s", ex->is_completed == 1 ? "Yes" : "Not yet finished.");
+
     mvhline(1, 2, ACS_HLINE, COLS - 4);
     print_center_auto(stdscr, 2, ex->lab_dir);
     mvhline(3, 2, ACS_HLINE, COLS - 4);
@@ -226,7 +233,8 @@ void show_exercise_selected_menu(Exercise *ex) {
 }
 
 // road-to-v0.2.0
-void show_main_menu(void) {
+void show_main_menu(void)
+{
     const enum Option options[] = {EXIT, VIEW_INSTRUCTIONS, VIEW_SETTINGS, VIEW_EXERCISES, RUN_CURRENT_EXERCISES, OPTIONS_END};
     clear();
     mvhline(1, 2, ACS_HLINE, COLS - 4);
@@ -234,7 +242,7 @@ void show_main_menu(void) {
     mvhline(3, 2, ACS_HLINE, COLS - 4);
     print_left_auto(stdscr, 7, "Welcome to the main menu of LinuxLearner.");
     char study_set_string[256];
-    snprintf(study_set_string, sizeof(study_set_string), "Current study set: %s", current_study_set->name);
+    snprintf(study_set_string, sizeof(study_set_string), "Current study set: %s", current_study_set != NULL ? current_study_set->name : "None");
     print_left_auto(stdscr, 9, study_set_string);
     print_options(stdscr, options);
     refresh();
@@ -252,7 +260,8 @@ void show_explanation(void)
     refresh();
 }
 
-void show_settings(void) {
+void show_settings(void)
+{
     const enum Option options[] = {RETURN_MENU, RESET_ALL, OPTIONS_END};
     clear();
     mvhline(1, 2, ACS_HLINE, COLS - 4);
@@ -262,7 +271,8 @@ void show_settings(void) {
     refresh();
 }
 
-void show_reset_confirmation_screen(void) {
+void show_reset_confirmation_screen(void)
+{
     const enum Option options[] = {RETURN_SETTINGS, CONFIRM_RESET, OPTIONS_END};
     clear();
     print_left_auto(stdscr, 4, "Are you sure you want to reset all exercises?");
@@ -270,7 +280,8 @@ void show_reset_confirmation_screen(void) {
     refresh();
 }
 
-void show_reset_done(void) {
+void show_reset_done(void)
+{
     const enum Option options[] = {RETURN_SETTINGS, OPTIONS_END};
     clear();
     print_left_auto(stdscr, 4, "All exercises have been reset and marked incomplete.");
@@ -278,10 +289,65 @@ void show_reset_done(void) {
     refresh();
 }
 
-void show_all_exercises_completed(void) {
+void show_all_exercises_completed(void)
+{
     const enum Option options[] = {RETURN_MENU, OPTIONS_END};
     clear();
     print_left_auto(stdscr, 4, "All exercises in your set have been completed. Go to settings to reset them.");
     print_options(stdscr, options);
     refresh();
+}
+
+// study sets
+
+void show_study_set_list_commentary(int top_window_border, int bottom_window_border)
+{
+    const enum Option options[] = {RETURN_MENU, SELECT_STUDY_SET, OPTIONS_END};
+
+    clear();
+    print_left_auto(stdscr, 1, "This is the study set list.");
+    print_left_auto(stdscr, 2, "Use W and S or the arrow keys to navigate through the study sets.");
+    print_border_line(stdscr, top_window_border);
+    print_border_line(stdscr, bottom_window_border);
+    print_options(stdscr, options);
+    refresh();
+}
+
+void show_study_set_list_contents(StudySet *study_sets, int top_window_border, int selected_index, int top_index, int per_page, int set_count)
+{
+    int y = top_window_border + 1;
+    int end = top_index + per_page - 1;
+    if (end > set_count)
+        end = set_count;
+
+    // Clear only the content area (not the whole screen)
+    for (int i = top_index; i <= end; i++)
+    {
+        move(y, 0);
+        clrtoeol(); // Clear only this line
+
+        if (i == selected_index)
+        {
+            attron(A_REVERSE);
+            mvwhline(stdscr, y, 0, ' ', COLS - 1);
+            mvwprintw(stdscr, y, 0, ">");
+        }
+
+        if (i == 0) {
+            mvwprintw(stdscr, y, 2, "[NONE] Run all exercises");
+        } else {
+            mvwprintw(stdscr, y, 2, "%s", study_sets[i].name);
+        }
+
+        // Turn off highlight
+        if (i == selected_index)
+        {
+            attroff(A_REVERSE);
+        }
+
+        y++;
+    }
+
+    return_cursor(stdscr);
+    refresh(); // Single refresh after all updates
 }

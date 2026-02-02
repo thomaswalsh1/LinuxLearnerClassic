@@ -460,7 +460,7 @@ void modify_exercise_data(Exercise *ex, const enum PersistentOption option)
                     if (strcmp(ext, ".conf") == 0)
                     {
                         int config_bytes = snprintf(config_path, sizeof(config_path),
-                                 "%s/%s", search_path, configs[j]->d_name);
+                                                    "%s/%s", search_path, configs[j]->d_name);
                         if (config_bytes < 0 || config_bytes >= (int)sizeof(config_path))
                         {
                             perror("Config path is too long");
@@ -595,12 +595,12 @@ void modify_exercise_data(Exercise *ex, const enum PersistentOption option)
     }
 }
 
-StudySet get_default_study_set(void) {
+StudySet get_default_study_set(void)
+{
     StudySet set = {0};
     char set_name[64] = {0};
     char set_path[256] = {0};
     char line[256];
-
 
     if (chdir(project_root) != 0)
     {
@@ -609,15 +609,18 @@ StudySet get_default_study_set(void) {
     }
 
     FILE *fp = fopen("saves/sets/default.conf", "r");
-    if (!fp) {
+    if (!fp)
+    {
         perror("Failed to open saves/sets/default.conf");
         return set;
     }
-    
-    while (fgets(line, sizeof(line), fp)) {
+
+    while (fgets(line, sizeof(line), fp))
+    {
         line[strcspn(line, "\n")] = '\0';
         trim_string(line);
-        if (strncmp(line, "default=", 8) == 0) {
+        if (strncmp(line, "default=", 8) == 0)
+        {
             strncpy(set_name, line + 8, sizeof(set_name) - 1);
             trim_string(set_name);
             break;
@@ -625,26 +628,29 @@ StudySet get_default_study_set(void) {
     }
     fclose(fp);
 
-    if (set_name[0] == '\0') {
+    if (set_name[0] == '\0')
+    {
         perror("No default set");
         return set;
     }
 
-    snprintf(set_path, sizeof(set_path), "saves/sets/%s.conf", set_name);
+    snprintf(set_path, sizeof(set_path), "saves/sets/%s.set", set_name);
 
     fp = fopen(set_path, "r");
-    if (!fp) {
+    if (!fp)
+    {
         perror("Failed to open study set file");
         return set;
     }
 
     // Allocate space for exercise paths
-    set.exercise_paths = malloc(sizeof(char*) * MAX_EXERCISES);
+    set.exercise_paths = malloc(sizeof(char *) * MAX_EXERCISES);
     set.exercise_count = 0;
     strncpy(set.name, set_name, sizeof(set.name) - 1);
 
     // Read each exercise path
-    while (fgets(line, sizeof(line), fp) && set.exercise_count < MAX_EXERCISES) {
+    while (fgets(line, sizeof(line), fp) && set.exercise_count < MAX_EXERCISES)
+    {
         line[strcspn(line, "\n")] = '\0';
         trim_string(line);
         if (line[0] == '\0' || line[0] == '#' || line[0] == ';')
@@ -654,4 +660,106 @@ StudySet get_default_study_set(void) {
     fclose(fp);
 
     return set;
+}
+
+static void strip_set_extension(char *name) {
+    char *ext = strrchr(name, '.');
+    if (ext && strcmp(ext, ".set") == 0) {
+        *ext = '\0';
+    }
+}
+
+StudySet get_study_set_by_name(char *name)
+{
+    StudySet set = {0};
+    char set_path[256];
+    char line[MAX_LINE];
+
+    // Build the path to the study set file
+    snprintf(set_path, sizeof(set_path), "saves/sets/%s", name);
+
+    FILE *fp = fopen(set_path, "r");
+    if (!fp)
+    {
+        perror("Failed to open study set file");
+        return set;
+    }
+
+    // Set the study set name (strip extension if you want, or keep as is)
+    strncpy(set.name, name, sizeof(set.name) - 1);
+    set.name[sizeof(set.name) - 1] = '\0';
+    strip_set_extension(set.name);
+
+    set.exercise_paths = malloc(sizeof(char *) * MAX_EXERCISES);
+    set.exercise_count = 0;
+
+    while (fgets(line, sizeof(line), fp) && set.exercise_count < MAX_EXERCISES)
+    {
+        line[strcspn(line, "\n")] = '\0';
+        trim_string(line);
+        if (line[0] == '\0' || line[0] == '#' || line[0] == ';')
+            continue;
+        set.exercise_paths[set.exercise_count++] = strdup(line);
+    }
+    fclose(fp);
+
+    return set;
+}
+
+
+
+StudySetList get_study_set_list(void)
+{
+    StudySetList list = {0};
+    struct dirent **namelist;
+    int n;
+
+    n = scandir("saves/sets/", &namelist, NULL, alphasort);
+    if (n < 0)
+    {
+        perror("scandir");
+        return list;
+    }
+
+    list.study_sets = malloc(sizeof(StudySet) * 64); // up to 64 sets
+    if (!list.study_sets)
+    {
+        fprintf(stderr, "Memory allocation failed\n");
+        for (int i = 0; i < n; i++)
+            free(namelist[i]);
+        free(namelist);
+        return list;
+    }
+
+    list.count = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        // skip . and ..
+        if (namelist[i]->d_name[0] == '.')
+        {
+            free(namelist[i]);
+            continue;
+        }
+        // Only include .set files
+        char *ext = strrchr(namelist[i]->d_name, '.');
+        if (!ext || (strcmp(ext, ".conf") == 0 && strcmp(ext, ".set") != 0))
+        {
+            free(namelist[i]);
+            continue;
+        }
+
+        // Fill in the StudySet struct with just the name for now
+        StudySet *set = &list.study_sets[list.count];
+        memset(set, 0, sizeof(StudySet));
+        strncpy(set->name, namelist[i]->d_name, sizeof(set->name) - 1);
+        set->name[sizeof(set->name) - 1] = '\0';
+        strip_set_extension(set->name);
+        list.count++;
+
+        free(namelist[i]);
+    }
+    free(namelist);
+
+    return list;
 }

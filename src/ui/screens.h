@@ -47,4 +47,7 @@ void show_reset_done(void);
 
 void show_all_exercises_completed(void);
 
+void show_study_set_list_commentary(int top_window_border, int bottom_window_border);
+void show_study_set_list_contents(StudySet *study_sets, int top_window_border, int selected_index, int top_index, int per_page, int set_count);
+
 #endif

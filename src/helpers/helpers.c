@@ -239,6 +239,12 @@ void print_options(WINDOW *win, const enum Option options[])
         case SELECT_EXERCISE:
             text = "Press ENTER to select an exercise";
             break;
+        case SELECT_STUDY_SET:
+            text = "Press ENTER to select a study set";
+            break;
+        case CONFIRM_STUDY_SET:
+            text = "Press ENTER to use this study set";
+            break;
         case GENERATE_RANDOM:
             text = "Press R to start creating a randomized study set";
             break;

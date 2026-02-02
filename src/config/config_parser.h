@@ -8,6 +8,11 @@ typedef struct {
     int count;
 } ExerciseList;
 
+typedef struct {
+    StudySet *study_sets;
+    int count;
+} StudySetList;
+
 
 /**
  * Loads all the exercises from directory with config files
@@ -54,5 +59,7 @@ enum PersistentOption {
 void modify_exercise_data(Exercise *ex, const enum PersistentOption option);
 
 StudySet get_default_study_set(void);
+StudySet get_study_set_by_name(char *name);
+StudySetList get_study_set_list(void);
 
 #endif
