@@ -17,6 +17,7 @@ int main(void)
     initscr();
     raw();
     keypad(stdscr, TRUE);
+    cbreak();
     noecho();
     curs_set(0); // hides the cursor
 

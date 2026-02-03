@@ -32,4 +32,11 @@ void launch_sandbox_shell(Exercise *ex);
 void modify_by_study_set(void);
 
 StudySet *run_study_set_menu(int *selected_study_set_index);
+
+StudySet *create_new_study_set(void);
+
+char *create_study_set_name(void);
+
+char **get_set_exercises(void);
+
 #endif

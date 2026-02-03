@@ -2,7 +2,6 @@
 #ifndef SCREENS_H
 #define SCREENS_H
 
-
 #include "exercises.h"
 #include "app_state.h"
 
@@ -49,5 +48,19 @@ void show_all_exercises_completed(void);
 
 void show_study_set_list_commentary(int top_window_border, int bottom_window_border);
 void show_study_set_list_contents(StudySet *study_sets, int top_window_border, int selected_index, int top_index, int per_page, int set_count);
+
+void show_create_study_set(void);
+
+void show_exercise_list_small(
+    Exercise *viewable_exercises,
+    char **currently_added_exercises,
+    int top_window_border,
+    int selected_index,
+    int top_index,
+    int per_page);
+
+void show_enter_name_options(void);
+void show_select_exercises_options(void);
+void show_confirm_exercises_options(void);
 
 #endif

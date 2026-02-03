@@ -8,6 +8,7 @@
 #include "runner.h"
 #include <stdlib.h>
 #include <errno.h>
+#include <form.h>
 
 #define GRID_COLS 3
 #define CELL_WIDTH 25
@@ -302,7 +303,7 @@ void show_all_exercises_completed(void)
 
 void show_study_set_list_commentary(int top_window_border, int bottom_window_border)
 {
-    const enum Option options[] = {RETURN_MENU, SELECT_STUDY_SET, OPTIONS_END};
+    const enum Option options[] = {RETURN_MENU, CREATE_STUDY_SET, SELECT_STUDY_SET, OPTIONS_END};
 
     clear();
     print_left_auto(stdscr, 1, "This is the study set list.");
@@ -333,9 +334,12 @@ void show_study_set_list_contents(StudySet *study_sets, int top_window_border, i
             mvwprintw(stdscr, y, 0, ">");
         }
 
-        if (i == 0) {
+        if (i == 0)
+        {
             mvwprintw(stdscr, y, 2, "[NONE] Run all exercises");
-        } else {
+        }
+        else
+        {
             mvwprintw(stdscr, y, 2, "%s", study_sets[i].name);
         }
 
@@ -350,4 +354,121 @@ void show_study_set_list_contents(StudySet *study_sets, int top_window_border, i
 
     return_cursor(stdscr);
     refresh(); // Single refresh after all updates
+}
+
+void show_create_study_set(void)
+{
+    clear();
+
+    mvhline(1, 2, ACS_HLINE, COLS - 4);
+    print_center_auto(stdscr, 2, "Create a new study set:");
+    mvhline(3, 2, ACS_HLINE, COLS - 4);
+    mvprintw(4, 2, "Name:");
+    mvhline(5, 2, ACS_HLINE, COLS - 4);
+    mvprintw(6, 2, "Selected Exercises: ");
+
+    refresh();
+}
+
+int check_in_added(char **added, const char *lab_dir)
+{
+    for (int i = 0; added[i]; ++i)
+    {
+        if (strcmp(added[i], lab_dir) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+void show_exercise_list_small(
+    Exercise *viewable_exercises,
+    char **currently_added_exercises,
+    int top_window_border,
+    int selected_index,
+    int top_index,
+    int per_page)
+{
+    int y = top_window_border + 1;
+    int end = top_index + per_page - 1;
+
+    mvhline(top_window_border, 2, ACS_HLINE, COLS - 1);
+    mvhline(top_window_border + per_page + 1, 2, ACS_HLINE, COLS - 1);
+
+    // Clear only the content area (not the whole screen)
+    for (int i = top_index; i <= end; i++)
+    {
+        move(y, 0);
+        clrtoeol(); // Clear only this line
+
+        int highlight = 0;
+        if (i == selected_index)
+        {
+            highlight = 1;
+        }
+        else if (check_in_added(currently_added_exercises, viewable_exercises[i].lab_dir))
+        {
+            highlight = 1;
+        }
+
+        if (highlight)
+        {
+            attron(A_REVERSE);
+            mvwhline(stdscr, y, 0, ' ', COLS / 2);
+            mvwprintw(stdscr, y, 0, ">");
+        }
+
+        mvwprintw(stdscr, y, 2, "%s", viewable_exercises[i].lab_dir);
+
+        // Turn off highlight
+        if (highlight)
+        {
+            attroff(A_REVERSE);
+        }
+
+        y++;
+    }
+
+    // now print the currently added exercises
+    int y2 = top_window_border + 1;
+    for (int i = 0; currently_added_exercises[i]; i++)
+    {
+        mvwprintw(stdscr, y2, (COLS / 2) + 1, currently_added_exercises[i]);
+        y2++;
+    }
+
+    mvvline(top_window_border + 1, COLS / 2, ACS_VLINE, per_page);
+
+    return_cursor(stdscr);
+    refresh(); // Single refresh after all updates
+}
+
+void clear_bottom_section(void) {
+    move(LINES, 0);
+    clrtoeol();
+    move(LINES - 1, 0);
+    clrtoeol();
+    move(LINES - 2, 0);
+    clrtoeol();
+}
+
+void show_enter_name_options(void)
+{
+    clear_bottom_section();
+    const enum Option options[] = {FINISH_TYPING_NAME, OPTIONS_END};
+    print_options(stdscr, options);
+    refresh();
+}
+void show_select_exercises_options(void)
+{
+    clear_bottom_section();
+    const enum Option options[] = {DONE_WITH_CREATING, OPTIONS_END};
+    print_options(stdscr, options);
+    refresh();
+}
+void show_confirm_exercises_options(void)
+{   
+    clear_bottom_section();
+    const enum Option options[] = {CONFIRM_CREATION, OPTIONS_END};
+    print_options(stdscr, options);
+    refresh();
 }

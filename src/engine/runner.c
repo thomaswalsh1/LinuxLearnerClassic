@@ -425,7 +425,7 @@ StudySet *run_study_set_menu(int *selected_study_set_index)
 {
     int ch;
     StudySetList list = get_study_set_list();
-    int total_sets = list.count + 1; // +1 for NONE
+    int total_sets = list.count + 1;                        // +1 for NONE
     StudySet *sets = malloc(sizeof(StudySet) * total_sets); // here we store a list of study sets
     // Insert NONE as the first option
     memset(&sets[0], 0, sizeof(StudySet)); // zero it out
@@ -477,6 +477,19 @@ StudySet *run_study_set_menu(int *selected_study_set_index)
                 needs_redraw = 1;
             }
         }
+        else if (ch == KEY_RESIZE)
+        {
+            int border_top = 4;
+            int border_bottom = LINES - 5;
+            show_study_set_list_commentary(border_top, border_bottom);
+            show_study_set_list_contents(sets, border_top, current_index, top_index, visible_spots, total_sets);
+        }
+        else if (ch == 'C' || ch == 'c')
+        {
+            StudySet *new = create_new_study_set();
+            show_study_set_list_commentary(border_top, border_bottom);
+            show_study_set_list_contents(sets, border_top, current_index, top_index, visible_spots, total_sets);
+        }
         else if (ch == '\n' || ch == KEY_ENTER)
         {
             *selected_study_set_index = current_index;
@@ -522,4 +535,220 @@ StudySet *run_study_set_menu(int *selected_study_set_index)
                                          current_index, top_index, visible_spots, total_sets);
         }
     }
+}
+
+StudySet *create_new_study_set(void)
+{
+    clear();
+    int ch;
+    StudySet *new_study_set = malloc(sizeof(StudySet));
+    memset(new_study_set, 0, sizeof(StudySet));
+
+
+    show_create_study_set();
+
+    char *name = create_study_set_name();
+    char **exercise_names = get_set_exercises();
+
+    show_confirm_exercises_options();
+
+    while (1)
+    {
+        ch = getch();
+        if (ch == KEY_RESIZE)
+        {
+            show_create_study_set();
+        }
+        if (ch == '\n' || ch == KEY_ENTER)
+        {
+            // adding the study set name
+            if (!name)
+            {
+                free(name);
+                return NULL;
+            }
+            strncpy(new_study_set->name, name, sizeof(name) - 1);
+            new_study_set->name[sizeof(new_study_set->name) - 1] = '\0';
+            free(name);
+            if (!exercise_names)
+            {
+                free(exercise_names);
+                return NULL;
+            }
+
+            // adding the study set exercises
+            int count = 0;
+            while (exercise_names[count])
+                count++;
+            new_study_set->exercise_count = count;
+            for (int i = 0; i < count; ++i)
+            {
+                strncpy(new_study_set->exercise_paths[i], exercise_names[i], sizeof(new_study_set->exercise_paths[i]) - 1);
+                new_study_set->exercise_paths[i][sizeof(new_study_set->exercise_paths[i]) - 1] = '\0';
+            }
+
+            free(exercise_names);
+            return new_study_set;
+        }
+        if (ch == 127 || ch == KEY_BACKSPACE)
+        {
+            free(new_study_set);
+            return NULL;
+        }
+    }
+}
+
+int is_in_added(char **added, int added_count, const char *lab_dir)
+{
+    for (int i = 0; i < added_count; ++i)
+    {
+        if (added[i] && strcmp(added[i], lab_dir) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+void add_exercise_to_set(char **added, int *added_count, const char *lab_dir)
+{
+    added[*added_count] = (char *)lab_dir; // just store pointer, not strdup
+    (*added_count)++;
+}
+
+void remove_exercise_from_set(char **added, int *added_count, const char *lab_dir)
+{
+    for (int i = 0; i < *added_count; ++i)
+    {
+        if (added[i] && strcmp(added[i], lab_dir) == 0)
+        {
+            // Shift left
+            for (int j = i; j < *added_count - 1; ++j)
+                added[j] = added[j + 1];
+            (*added_count)--;
+            break;
+        }
+    }
+}
+
+char **get_set_exercises(void)
+{
+    int ch;
+
+    int top_index = last_top_index;
+    int border_top = 7;
+    int border_bottom = LINES - 5;
+    int visible_spots = border_bottom - border_top - 1;
+    int current_index = 0;
+
+    char **currently_added_exercises = calloc(exercise_count, sizeof(char *));
+    int added_count = 0;
+
+    // Initial draw - draw everything once
+    show_exercise_list_small(exercises, currently_added_exercises, border_top, current_index,
+                             top_index, visible_spots);
+
+    show_select_exercises_options();
+    
+    int needs_redraw = 0;
+    while (1)
+    {
+        ch = getch();
+        if (ch == KEY_UP || ch == 'w' || ch == 'W')
+        {
+            if (current_index > 0)
+            {
+                current_index--;
+                needs_redraw = 1;
+            }
+            if (current_index < top_index)
+            {
+                top_index--;
+                needs_redraw = 1;
+            }
+        }
+        else if (ch == KEY_DOWN || ch == 's' || ch == 'S')
+        {
+            if (current_index < exercise_count - 1)
+            {
+                current_index++;
+                needs_redraw = 1;
+            }
+            if (current_index >= top_index + visible_spots)
+            {
+                top_index++;
+                needs_redraw = 1;
+            }
+        }
+        else if (ch == '\n' || ch == KEY_ENTER)
+        {
+            const char *lab_dir = exercises[current_index].lab_dir;
+            if (is_in_added(currently_added_exercises, added_count, lab_dir))
+            {
+                remove_exercise_from_set(currently_added_exercises, &added_count, lab_dir);
+            }
+            else
+            {
+                add_exercise_to_set(currently_added_exercises, &added_count, lab_dir);
+            }
+            needs_redraw = 1;
+        }
+        else if (ch == ' ')
+        {
+            return currently_added_exercises;
+        }
+        else if (ch == KEY_RESIZE)
+        {
+            int border_top = 7;
+            int border_bottom = LINES - 5;
+            show_exercise_list_small(exercises, currently_added_exercises, border_top, current_index,
+                                     top_index, visible_spots);
+        }
+        if (needs_redraw)
+        {
+            show_exercise_list_small(exercises, currently_added_exercises, border_top, current_index,
+                                     top_index, visible_spots);
+        }
+    }
+}
+
+char *create_study_set_name(void)
+{
+    char name[65] = {0};
+    int position = 0;
+
+    show_enter_name_options();
+
+    int ch;
+
+    move(4, 8);
+    curs_set(1);
+
+
+    while ((ch = getch()) != '\n')
+    {
+        if (ch == KEY_BACKSPACE || ch == 127 || ch == 8)
+        {
+            if (position > 0)
+            {
+                position--;
+                name[position] = '\0';
+
+                mvaddch(4, 8 + position, ' ');
+                move(4, 8 + position);
+            }
+        }
+        /* Printable characters */
+        else if (position < 64 && ch >= 32 && ch <= 126)
+        {
+            name[position++] = ch;
+            addch(ch);
+        }
+
+        refresh();
+    }
+
+    return_cursor(stdscr);
+    char *result = malloc(position + 1);
+    strcpy(result, name);
+    curs_set(0);
+    return result;
 }
