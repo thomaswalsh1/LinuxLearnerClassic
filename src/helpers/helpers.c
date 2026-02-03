@@ -249,7 +249,7 @@ void print_options(WINDOW *win, const enum Option options[])
             text = "Press R to start creating a randomized study set";
             break;
         case VIEW_EXERCISES:
-            text = "Press V to view exercises";
+            text = "Press V to view exercises and study sets";
             break;
         case VIEW_INSTRUCTIONS:
             text = "Press H to for instructions";

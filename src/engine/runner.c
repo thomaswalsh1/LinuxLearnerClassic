@@ -426,11 +426,12 @@ StudySet *run_study_set_menu(int *selected_study_set_index)
     int ch;
     StudySetList list = get_study_set_list();
     int total_sets = list.count + 1; // +1 for NONE
-    StudySet *sets = malloc(sizeof(StudySet) * total_sets);
+    StudySet *sets = malloc(sizeof(StudySet) * total_sets); // here we store a list of study sets
     // Insert NONE as the first option
-    memset(&sets[0], 0, sizeof(StudySet));
+    memset(&sets[0], 0, sizeof(StudySet)); // zero it out
     strncpy(sets[0].name, "NONE", sizeof(sets[0].name) - 1);
-    for (int i = 0; i < list.count; ++i) {
+    for (int i = 0; i < list.count; ++i)
+    {
         sets[i + 1] = list.study_sets[i];
     }
 
@@ -439,7 +440,8 @@ StudySet *run_study_set_menu(int *selected_study_set_index)
     int border_bottom = LINES - 5;
     int visible_spots = border_bottom - border_top - 1;
     int current_index = *selected_study_set_index;
-    if (current_index >= total_sets) current_index = 0;
+    if (current_index >= total_sets)
+        current_index = 0;
 
     show_study_set_list_commentary(border_top, border_bottom);
     show_study_set_list_contents(sets, border_top, current_index, top_index, visible_spots, total_sets);
@@ -479,15 +481,20 @@ StudySet *run_study_set_menu(int *selected_study_set_index)
         {
             *selected_study_set_index = current_index;
             last_top_index_study_set = top_index;
-            if (current_index == 0) {
-                // NONE selected: enable all exercises
-                for (int i = 0; i < exercise_count; ++i) {
+            if (current_index == 0)
+            {
+                // NONE selected
+                for (int i = 0; i < exercise_count; ++i)
+                {
                     exercises[i].is_enabled = 1;
                 }
                 free(sets);
                 return NULL;
-            } else {
-                StudySet *selected = &sets[current_index];
+            }
+            else
+            {
+                StudySet *selected = malloc(sizeof(StudySet));
+                *selected = sets[current_index];
                 free(sets);
                 return selected;
             }
@@ -504,7 +511,7 @@ StudySet *run_study_set_menu(int *selected_study_set_index)
             visible_spots = border_bottom - border_top - 1;
             show_study_set_list_commentary(border_top, border_bottom);
             show_study_set_list_contents(sets, border_top,
-                                        current_index, top_index, visible_spots, total_sets);
+                                         current_index, top_index, visible_spots, total_sets);
         }
 
         // Only redraw what changed
@@ -512,7 +519,7 @@ StudySet *run_study_set_menu(int *selected_study_set_index)
         {
             // Only redraw the contents, not the commentary
             show_study_set_list_contents(sets, border_top,
-                                        current_index, top_index, visible_spots, total_sets);
+                                         current_index, top_index, visible_spots, total_sets);
         }
     }
 }

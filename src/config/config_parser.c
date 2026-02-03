@@ -743,20 +743,43 @@ StudySetList get_study_set_list(void)
         }
         // Only include .set files
         char *ext = strrchr(namelist[i]->d_name, '.');
-        if (!ext || (strcmp(ext, ".conf") == 0 && strcmp(ext, ".set") != 0))
+        if (!ext || strcmp(ext, ".set") != 0)
         {
             free(namelist[i]);
             continue;
         }
 
-        // Fill in the StudySet struct with just the name for now
+        // Fill in the StudySet struct
         StudySet *set = &list.study_sets[list.count];
         memset(set, 0, sizeof(StudySet));
         strncpy(set->name, namelist[i]->d_name, sizeof(set->name) - 1);
         set->name[sizeof(set->name) - 1] = '\0';
         strip_set_extension(set->name);
-        list.count++;
 
+        // Now, load exercise paths from the .set file
+        char set_path[256];
+        snprintf(set_path, sizeof(set_path), "saves/sets/%s", namelist[i]->d_name);
+        FILE *fp = fopen(set_path, "r");
+        if (fp)
+        {
+            set->exercise_paths = malloc(sizeof(char *) * MAX_EXERCISES);
+            set->exercise_count = 0;
+            char line[MAX_LINE];
+            while (fgets(line, sizeof(line), fp) && set->exercise_count < MAX_EXERCISES)
+            {
+                line[strcspn(line, "\n")] = '\0';
+                trim_string(line);
+                if (line[0] == '\0' || line[0] == '#' || line[0] == ';')
+                    continue;
+                set->exercise_paths[set->exercise_count++] = strdup(line);
+            }
+            fclose(fp);
+        } else {
+            set->exercise_paths = NULL;
+            set->exercise_count = 0;
+        }
+
+        list.count++;
         free(namelist[i]);
     }
     free(namelist);
