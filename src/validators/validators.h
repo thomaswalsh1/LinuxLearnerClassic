@@ -60,4 +60,12 @@ int validate_awk_field_separator(Exercise *ex);
 int validate_awk_file(Exercise *ex);
 int validate_awk_sandbox(Exercise *ex);
 
+// ls validators
+int validate_ls_show_all(Exercise *ex);
+int validate_ls_show_directory(Exercise *ex);
+int validate_ls_classify(Exercise *ex);
+int validate_ls_show_inodes(Exercise *ex);
+int validate_ls_long_listing(Exercise *ex);
+int validate_ls_recursive(Exercise *ex);
+
 #endif
