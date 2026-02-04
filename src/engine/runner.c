@@ -487,6 +487,30 @@ StudySet *run_study_set_menu(int *selected_study_set_index)
         else if (ch == 'C' || ch == 'c')
         {
             StudySet *new = create_new_study_set();
+            if (new) {
+                save_study_set_disk(new);
+                current_study_set = new;
+
+                // Free previous sets array (except NONE)
+                free(sets);
+                // Free previous list.study_sets if allocated
+                if (list.study_sets) {
+                    free(list.study_sets);
+                }
+
+                // Reload study set list and sets array
+                list = get_study_set_list();
+                total_sets = list.count + 1;
+                sets = malloc(sizeof(StudySet) * total_sets);
+                memset(&sets[0], 0, sizeof(StudySet));
+                strncpy(sets[0].name, "NONE", sizeof(sets[0].name) - 1);
+                for (int i = 0; i < list.count; ++i)
+                {
+                    sets[i + 1] = list.study_sets[i];
+                }
+                // Optionally, move selection to the new set
+                current_index = total_sets - 1;
+            }
             show_study_set_list_commentary(border_top, border_bottom);
             show_study_set_list_contents(sets, border_top, current_index, top_index, visible_spots, total_sets);
         }
@@ -544,10 +568,13 @@ StudySet *create_new_study_set(void)
     StudySet *new_study_set = malloc(sizeof(StudySet));
     memset(new_study_set, 0, sizeof(StudySet));
 
-
     show_create_study_set();
 
     char *name = create_study_set_name();
+    if (*name == NULL)
+    {
+        return NULL;
+    }
     char **exercise_names = get_set_exercises();
 
     show_confirm_exercises_options();
@@ -562,7 +589,7 @@ StudySet *create_new_study_set(void)
         if (ch == '\n' || ch == KEY_ENTER)
         {
             // adding the study set name
-            if (!name)
+            if (name == NULL)
             {
                 free(name);
                 return NULL;
@@ -581,10 +608,11 @@ StudySet *create_new_study_set(void)
             while (exercise_names[count])
                 count++;
             new_study_set->exercise_count = count;
+            new_study_set->exercise_paths = malloc(count * sizeof(char *));
             for (int i = 0; i < count; ++i)
             {
-                strncpy(new_study_set->exercise_paths[i], exercise_names[i], sizeof(new_study_set->exercise_paths[i]) - 1);
-                new_study_set->exercise_paths[i][sizeof(new_study_set->exercise_paths[i]) - 1] = '\0';
+                new_study_set->exercise_paths[i] = malloc(strlen(exercise_names[i]) + 1);
+                strcpy(new_study_set->exercise_paths[i], exercise_names[i]);
             }
 
             free(exercise_names);
@@ -647,7 +675,7 @@ char **get_set_exercises(void)
                              top_index, visible_spots);
 
     show_select_exercises_options();
-    
+
     int needs_redraw = 0;
     while (1)
     {
@@ -702,6 +730,10 @@ char **get_set_exercises(void)
             show_exercise_list_small(exercises, currently_added_exercises, border_top, current_index,
                                      top_index, visible_spots);
         }
+        else if (ch == 127 || KEY_BACKSPACE)
+        {
+            return NULL;
+        }
         if (needs_redraw)
         {
             show_exercise_list_small(exercises, currently_added_exercises, border_top, current_index,
@@ -721,7 +753,6 @@ char *create_study_set_name(void)
 
     move(4, 8);
     curs_set(1);
-
 
     while ((ch = getch()) != '\n')
     {

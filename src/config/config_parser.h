@@ -62,4 +62,6 @@ StudySet get_default_study_set(void);
 StudySet get_study_set_by_name(char *name);
 StudySetList get_study_set_list(void);
 
+void save_study_set_disk(StudySet *set);
+
 #endif

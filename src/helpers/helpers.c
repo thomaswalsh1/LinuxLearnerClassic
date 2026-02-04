@@ -236,8 +236,14 @@ void print_options(WINDOW *win, const enum Option options[])
         case RETURN_MENU:
             text = "Press BACKSPACE to return to the menu";
             break;
+        case CANCEL:
+            text = "Press BACKSPACE to cancel";
+            break;
         case SELECT_EXERCISE:
             text = "Press ENTER to select an exercise";
+            break;
+        case EDIT_NAME:
+            text = "Press N to edit name";
             break;
         case SELECT_STUDY_SET:
             text = "Press ENTER to select a study set";

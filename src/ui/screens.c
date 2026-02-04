@@ -449,6 +449,8 @@ void clear_bottom_section(void) {
     clrtoeol();
     move(LINES - 2, 0);
     clrtoeol();
+    move(LINES - 3, 0);
+    clrtoeol();
 }
 
 void show_enter_name_options(void)
@@ -461,14 +463,14 @@ void show_enter_name_options(void)
 void show_select_exercises_options(void)
 {
     clear_bottom_section();
-    const enum Option options[] = {DONE_WITH_CREATING, OPTIONS_END};
+    const enum Option options[] = {CANCEL, DONE_WITH_CREATING, OPTIONS_END};
     print_options(stdscr, options);
     refresh();
 }
 void show_confirm_exercises_options(void)
 {   
     clear_bottom_section();
-    const enum Option options[] = {CONFIRM_CREATION, OPTIONS_END};
+    const enum Option options[] = {CANCEL, EDIT_NAME, CONFIRM_CREATION, OPTIONS_END};
     print_options(stdscr, options);
     refresh();
 }

@@ -786,3 +786,27 @@ StudySetList get_study_set_list(void)
 
     return list;
 }
+
+void save_study_set_disk(StudySet *set) {
+    if (!set || !set->name[0] || !set->exercise_paths) {
+        fprintf(stderr, "Invalid StudySet provided to save_study_set_disk\n");
+        return;
+    }
+
+    char set_path[256];
+    snprintf(set_path, sizeof(set_path), "saves/sets/%s.set", set->name);
+
+    FILE *fp = fopen(set_path, "w");
+    if (!fp) {
+        perror("Failed to open study set file for writing");
+        return;
+    }
+
+    for (int i = 0; i < set->exercise_count; i++) {
+        if (set->exercise_paths[i] && set->exercise_paths[i][0]) {
+            fprintf(fp, "%s\n", set->exercise_paths[i]);
+        }
+    }
+
+    fclose(fp);
+}
