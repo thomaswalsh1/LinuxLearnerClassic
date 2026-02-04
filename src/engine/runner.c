@@ -13,8 +13,11 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <ncurses.h>
+
 #include <errno.h>
 #include <ncurses.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 char project_root[512];
 
@@ -193,30 +196,30 @@ void launch_sandbox_shell(Exercise *ex)
 
     def_prog_mode();
     endwin(); // temporarily exit ncurses
-
+    system("clear");
     printf("\n--- LAB SHELL (SANDBOXED) ---\n");
     printf("Type commands. Type 'exit' to return.\n\n");
 
+
     char captured_output[1024] = {0}; // store last command's stdout
 
+    using_history();
     while (1)
     {
-        char *cmd = NULL;
-        size_t len = 0;
-        printf("sandbox $ ");
-        fflush(stdout);
-
-        if (getline(&cmd, &len, stdin) == -1)
-        {
-            free(cmd);
+        char *cmd = readline("sandbox $ ");
+        if (!cmd) {
             break;
         }
-
-        // remove trailing newline
-        cmd[strcspn(cmd, "\n")] = 0;
-
-        if (strncmp(cmd, "exit", 4) == 0)
-        {
+        // remove trailing whitespace
+        char *end = cmd + strlen(cmd) - 1;
+        while (end >= cmd && (*end == '\n' || *end == '\r')) {
+            *end = '\0';
+            --end;
+        }
+        if (cmd[0] != '\0') {
+            add_history(cmd);
+        }
+        if (strncmp(cmd, "exit", 4) == 0 && (cmd[4] == '\0' || isspace(cmd[4]))) {
             free(cmd);
             break;
         }
