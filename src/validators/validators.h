@@ -7,6 +7,7 @@
 int file_exists(const char *path);
 int file_contains(const char *path, const char *needle);
 int check_first_line(const char *output, const char *expected_line);
+char *read_entire_file(const char *path);
 
 // Grep validators
 int validate_grep_basic(Exercise *ex);
@@ -76,5 +77,12 @@ int validate_cp_no_clobber(Exercise *ex);
 int validate_cp_recursive(Exercise *ex);
 int validate_cp_update(Exercise *ex);
 int validate_cp_verbose(Exercise *ex);
+
+// mv validators
+int validate_mv_f(Exercise *ex);
+int validate_mv_i(Exercise *ex);
+int validate_mv_n(Exercise *ex);
+int validate_mv_u(Exercise *ex);
+int validate_mv_v(Exercise *ex);
 
 #endif

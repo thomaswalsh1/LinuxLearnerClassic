@@ -3,27 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Helper function to read entire file into memory
-static char* read_entire_file(const char *path) {
-    FILE *f = fopen(path, "r");
-    if (!f) return NULL;
-    
-    fseek(f, 0, SEEK_END);
-    long size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    
-    char *content = malloc(size + 1);
-    if (!content) {
-        fclose(f);
-        return NULL;
-    }
-    
-    fread(content, 1, size, f);
-    content[size] = '\0';
-    fclose(f);
-    return content;
-}
-
 // Exercise 1: Show all - verify -A option shows special characters
 int validate_cat_show_all(Exercise *ex) {
     return check_first_line(ex->last_command_output, "First line with special^Ichars$");

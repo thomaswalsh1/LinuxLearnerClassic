@@ -72,6 +72,11 @@ static ValidatorEntry validator_registry[] = {
     {"awk_field_separator", validate_awk_field_separator},
     {"awk_file", validate_awk_file},
     {"awk_sandbox", validate_awk_sandbox},
+    {"validate_mv_f", validate_mv_f},
+    {"validate_mv_i", validate_mv_i},
+    {"validate_mv_n", validate_mv_n},
+    {"validate_mv_u", validate_mv_u},
+    {"validate_mv_v", validate_mv_v},
     {NULL, NULL}};
 
 int (*get_validator_function(const char *validator_name))(void)

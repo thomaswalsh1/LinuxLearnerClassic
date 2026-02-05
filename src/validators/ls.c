@@ -4,24 +4,6 @@
 #include <unistd.h>
 #include <string.h>
 
-// Helper: read entire file (copied from cat.c)
-static char* read_entire_file(const char *path) {
-	FILE *f = fopen(path, "r");
-	if (!f) return NULL;
-	fseek(f, 0, SEEK_END);
-	long size = ftell(f);
-	fseek(f, 0, SEEK_SET);
-	char *content = malloc(size + 1);
-	if (!content) {
-		fclose(f);
-		return NULL;
-	}
-	fread(content, 1, size, f);
-	content[size] = '\0';
-	fclose(f);
-	return content;
-}
-
 // Exercise 1: Show all files (-a)
 int validate_ls_show_all(Exercise *ex) {
 	// Should show .hiddenfile, file1, file2, . and ..

@@ -6,25 +6,7 @@
 #include <unistd.h>
 
 // Helper: read entire file into memory
-static char *read_entire_file(const char *path)
-{
-    FILE *f = fopen(path, "r");
-    if (!f)
-        return NULL;
-    fseek(f, 0, SEEK_END);
-    long size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    char *content = malloc(size + 1);
-    if (!content)
-    {
-        fclose(f);
-        return NULL;
-    }
-    fread(content, 1, size, f);
-    content[size] = '\0';
-    fclose(f);
-    return content;
-}
+
 
 // Exercise 1: Archive copy (-a)
 int validate_cp_archive(Exercise *ex)
@@ -60,13 +42,9 @@ int validate_cp_force(Exercise *ex)
 
 // skip for now
 // Exercise 3: Interactive overwrite (-i)
+// broken due to piping outputs
 int validate_cp_interactive(Exercise *ex)
 {
-    // char dst[256];
-    // snprintf(dst, sizeof(dst), "%s/dest/file1", ex->sandbox_dir);
-    // char *dstc = read_entire_file(dst);
-    // int ok = dstc && strstr(dstc, "Interactive overwrite test file.");
-    // free(dstc);
     return 1;
 }
 
@@ -96,7 +74,8 @@ int validate_cp_recursive(Exercise *ex)
 }
 
 // Exercise 6: Update only (-u)
-// broken because the file for dest is actually NEWER
+// broken for output verification because the file for dest is actually NEWER
+// must use input verification
 int validate_cp_update(Exercise *ex)
 {
     // char dst[256];
@@ -105,7 +84,7 @@ int validate_cp_update(Exercise *ex)
     // int ok = dstc && strstr(dstc, "Update only test file (newer).");
     // free(dstc);
     // return ok;
-    return 1;
+    return strstr(ex->last_user_command, "-u");
 }
 
 // Exercise 7: Verbose (-v)
