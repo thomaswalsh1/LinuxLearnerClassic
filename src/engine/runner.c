@@ -192,6 +192,9 @@ void launch_sandbox_shell(Exercise *ex)
 
     populate_sandbox(ex->lab_dir, sandbox);
 
+    strncpy(ex->sandbox_dir, sandbox, sizeof(ex->sandbox_dir) - 1);
+    ex->sandbox_dir[sizeof(ex->sandbox_dir) - 1] = '\0';
+
     printf("Current assignment -> %s\n", ex->lab_dir);
 
     def_prog_mode();
@@ -200,26 +203,29 @@ void launch_sandbox_shell(Exercise *ex)
     printf("\n--- LAB SHELL (SANDBOXED) ---\n");
     printf("Type commands. Type 'exit' to return.\n\n");
 
-
     char captured_output[1024] = {0}; // store last command's stdout
 
     using_history();
     while (1)
     {
         char *cmd = readline("sandbox $ ");
-        if (!cmd) {
+        if (!cmd)
+        {
             break;
         }
         // remove trailing whitespace
         char *end = cmd + strlen(cmd) - 1;
-        while (end >= cmd && (*end == '\n' || *end == '\r')) {
+        while (end >= cmd && (*end == '\n' || *end == '\r'))
+        {
             *end = '\0';
             --end;
         }
-        if (cmd[0] != '\0') {
+        if (cmd[0] != '\0')
+        {
             add_history(cmd);
         }
-        if (strncmp(cmd, "exit", 4) == 0 && (cmd[4] == '\0' || isspace(cmd[4]))) {
+        if (strncmp(cmd, "exit", 4) == 0 && (cmd[4] == '\0' || isspace(cmd[4])))
+        {
             free(cmd);
             break;
         }
@@ -292,10 +298,12 @@ void launch_sandbox_shell(Exercise *ex)
     }
 
     // cleanup sandbox
-    char rm[600];
-    snprintf(rm, sizeof(rm), "rm -rf %s", sandbox);
-    system(rm);
-
+    if (ex->preserve_sandbox == NULL)
+    {
+        char rm[600];
+        snprintf(rm, sizeof(rm), "rm -rf %s", sandbox);
+        system(rm);
+    }
     reset_prog_mode();
     refresh();
 }
@@ -490,14 +498,16 @@ StudySet *run_study_set_menu(int *selected_study_set_index)
         else if (ch == 'C' || ch == 'c')
         {
             StudySet *new = create_new_study_set();
-            if (new) {
+            if (new)
+            {
                 save_study_set_disk(new);
                 current_study_set = new;
 
                 // Free previous sets array (except NONE)
                 free(sets);
                 // Free previous list.study_sets if allocated
-                if (list.study_sets) {
+                if (list.study_sets)
+                {
                     free(list.study_sets);
                 }
 

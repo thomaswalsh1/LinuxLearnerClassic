@@ -68,4 +68,13 @@ int validate_ls_show_inodes(Exercise *ex);
 int validate_ls_long_listing(Exercise *ex);
 int validate_ls_recursive(Exercise *ex);
 
+// cp validators
+int validate_cp_archive(Exercise *ex);
+int validate_cp_force(Exercise *ex);
+int validate_cp_interactive(Exercise *ex);
+int validate_cp_no_clobber(Exercise *ex);
+int validate_cp_recursive(Exercise *ex);
+int validate_cp_update(Exercise *ex);
+int validate_cp_verbose(Exercise *ex);
+
 #endif

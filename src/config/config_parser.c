@@ -35,6 +35,13 @@ static ValidatorEntry validator_registry[] = {
     {"ls_show_inodes", validate_ls_show_inodes},
     {"ls_long_listing", validate_ls_long_listing},
     {"ls_recursive", validate_ls_recursive},
+    {"cp_archive", validate_cp_archive},
+    {"cp_force", validate_cp_force},
+    {"cp_interactive", validate_cp_interactive},
+    {"cp_no_clobber", validate_cp_no_clobber},
+    {"cp_recursive", validate_cp_recursive},
+    {"cp_update", validate_cp_update},
+    {"cp_verbose", validate_cp_verbose},
     {"cut_characters", validate_cut_characters},
     {"cut_bytes", validate_cut_bytes},
     {"cut_delimiter", validate_cut_delimiter},
@@ -174,6 +181,9 @@ static Exercise parse_conf_file(const char *filepath)
         else if (strcmp(key, "completed") == 0)
         {
             ex.is_completed = atoi(value);
+        }
+        else if (strcmp(key, "preserve_sandbox") == 0) {
+            ex.preserve_sandbox = atoi(value);
         }
     }
 

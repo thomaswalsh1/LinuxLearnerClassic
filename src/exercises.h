@@ -15,7 +15,9 @@ typedef struct Exercise {
     int is_completed;
 
     char last_user_command[1024];
-    char last_command_output[8192]; 
+    char last_command_output[8192];
+
+    int preserve_sandbox;
 } Exercise;
 
 typedef struct StudySet{
