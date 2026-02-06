@@ -77,6 +77,18 @@ static ValidatorEntry validator_registry[] = {
     {"validate_mv_n", validate_mv_n},
     {"validate_mv_u", validate_mv_u},
     {"validate_mv_v", validate_mv_v},
+    {"validate_rsync_a", validate_rsync_a},
+    {"validate_rsync_D", validate_rsync_D},
+    {"validate_rsync_g", validate_rsync_g},
+    {"validate_rsync_h", validate_rsync_h},
+    {"validate_rsync_l", validate_rsync_l},
+    {"validate_rsync_o", validate_rsync_o},
+    {"validate_rsync_p", validate_rsync_p},
+    {"validate_rsync_progress", validate_rsync_progress},
+    {"validate_rsync_r", validate_rsync_r},
+    {"validate_rsync_stats", validate_rsync_stats},
+    {"validate_rsync_t", validate_rsync_t},
+    {"validate_rsync_v", validate_rsync_v},
     {NULL, NULL}};
 
 int (*get_validator_function(const char *validator_name))(void)

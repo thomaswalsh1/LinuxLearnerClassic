@@ -236,6 +236,8 @@ int main(void)
                     if (ch2 == '\n' || ch2 == KEY_ENTER)
                     {
                         reset_all_output_files();
+                        current_exercise == NULL;
+                        current_exercise_index = 0;
                         int ch3;
                         show_reset_done();
                         while (1)

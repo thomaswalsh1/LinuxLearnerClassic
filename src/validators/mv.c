@@ -41,7 +41,7 @@ int validate_mv_n(Exercise *ex) {
     snprintf(src, sizeof(src), "%s/source/file1", ex->sandbox_dir);
     char *destc = read_entire_file(dest);
     char *srcc = read_entire_file(src);
-    return destc && srcc && strstr(destc, "new");
+    return destc && srcc && strstr(destc, "new") && strstr(ex->last_user_command, "-n");
 }
 
 // mv -u: only overwrite if source newer

@@ -1,5 +1,6 @@
 #include "validators.h"
 #include <stdio.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
 
@@ -48,4 +49,10 @@ char *read_entire_file(const char *path)
     content[size] = '\0';
     fclose(f);
     return content;
+}
+
+// Helper: check if file exists
+int file_exists(const char *path) {
+    struct stat st;
+    return stat(path, &st) == 0;
 }

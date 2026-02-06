@@ -59,27 +59,6 @@ void reset_all_output_files(void)
 
         mark_incomplete(ex);
 
-        // reduntant checking for target file on object
-        if (!ex->target_file || strlen(ex->target_file) == 0)
-        {
-            continue;
-        }
-        // check for lab directory
-        if (chdir(ex->lab_dir) != 0)
-        {
-            perror("reset_all_output_files: chdir lab_dir");
-            chdir(project_root);
-            continue;
-        }
-        // attempt to remove
-        if (remove(ex->target_file) == 0)
-        {
-            printf("%s : target file %s removed. \n", ex->title, ex->target_file);
-        }
-        else
-        {
-            printf("%s : failed to remove target file %s \n", ex->title, ex->target_file);
-        }
         chdir(project_root);
     }
 }
@@ -93,20 +72,6 @@ void reset_single_exercise(Exercise *ex)
     }
     mark_incomplete(ex);
 
-    if (!ex->target_file || strlen(ex->target_file) == 0)
-        return;
-    // check for lab directory
-    if (chdir(ex->lab_dir) != 0)
-    {
-        perror("reset_all_output_files: chdir lab_dir");
-        chdir(project_root);
-        return;
-    }
-    // attempt to remove
-    if (remove(ex->target_file) == 0)
-        printf("%s : target file %s removed. \n", ex->title, ex->target_file);
-    else
-        printf("%s : failed to remove target file %s \n", ex->title, ex->target_file);
     chdir(project_root);
 }
 

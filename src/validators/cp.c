@@ -32,11 +32,14 @@ int validate_cp_archive(Exercise *ex)
 // Exercise 2: Force overwrite (-f)
 int validate_cp_force(Exercise *ex)
 {
-    char dst[256];
+    char dst[256], src[256];
     snprintf(dst, sizeof(dst), "%s/dest/file1", ex->sandbox_dir);
+    snprintf(src, sizeof(src), "%s/src/file1", ex->sandbox_dir);
     char *dstc = read_entire_file(dst);
-    int ok = dstc && strstr(dstc, "Force overwrite test file.");
+    char *srcc = read_entire_file(src);
+    int ok = dstc &&!srcc && strstr(dstc, "Force overwrite test file.");
     free(dstc);
+    free(srcc);
     return ok;
 }
 
@@ -54,7 +57,7 @@ int validate_cp_no_clobber(Exercise *ex)
     char dst[256];
     snprintf(dst, sizeof(dst), "%s/dest/file1", ex->sandbox_dir);
     char *dstc = read_entire_file(dst);
-    int ok = dstc && strstr(dstc, "Old file that should not be overwritten.");
+    int ok = dstc && strstr(ex->last_user_command, "-n") && strstr(dstc, "Old file that should not be overwritten.");
     free(dstc);
     return ok;
 }
@@ -90,7 +93,6 @@ int validate_cp_update(Exercise *ex)
 // Exercise 7: Verbose (-v)
 int validate_cp_verbose(Exercise *ex)
 {
-    // Check that output.txt contains 'file1' and 'copied'
     char outpath[256];
     snprintf(outpath, sizeof(outpath), "%s/dest/file1", ex->sandbox_dir);
     char *out = read_entire_file(outpath);

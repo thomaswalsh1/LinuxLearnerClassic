@@ -85,4 +85,18 @@ int validate_mv_n(Exercise *ex);
 int validate_mv_u(Exercise *ex);
 int validate_mv_v(Exercise *ex);
 
+// rsync validators
+int validate_rsync_a(Exercise *ex);
+int validate_rsync_D(Exercise *ex);
+int validate_rsync_g(Exercise *ex);
+int validate_rsync_h(Exercise *ex);
+int validate_rsync_l(Exercise *ex);
+int validate_rsync_o(Exercise *ex);
+int validate_rsync_p(Exercise *ex);
+int validate_rsync_progress(Exercise *ex);
+int validate_rsync_r(Exercise *ex);
+int validate_rsync_stats(Exercise *ex);
+int validate_rsync_t(Exercise *ex);
+int validate_rsync_v(Exercise *ex);
+
 #endif
