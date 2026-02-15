@@ -165,8 +165,10 @@ void launch_sandbox_shell(Exercise *ex)
     def_prog_mode();
     endwin(); // temporarily exit ncurses
     system("clear");
-    printf("\n--- LAB SHELL (SANDBOXED) ---\n");
-    printf("Type commands. Type 'exit' to return.\n\n");
+    printf("\n%s", ex->description);
+    printf("\n\n--- LAB SHELL (SANDBOXED) ---\n");
+    printf("Type commands. Type 'exit' to return to check your answer.\n");
+    printf("The last command you enter will be used to validate your answer.\n\n");
 
     char captured_output[1024] = {0}; // store last command's stdout
 
