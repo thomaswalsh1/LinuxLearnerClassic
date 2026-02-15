@@ -202,6 +202,9 @@ static Exercise parse_conf_file(const char *filepath)
         else if (strcmp(key, "preserve_sandbox") == 0) {
             ex.preserve_sandbox = atoi(value);
         }
+        else if (strcmp(key, "requires_interaction") == 0) {
+            ex.requires_interaction = atoi(value);
+        }
     }
 
     fclose(fp);

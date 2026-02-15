@@ -18,6 +18,7 @@ typedef struct Exercise {
     char last_command_output[8192];
 
     int preserve_sandbox;
+    int requires_interaction;
 } Exercise;
 
 typedef struct StudySet{
