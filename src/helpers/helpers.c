@@ -236,14 +236,44 @@ void print_options(WINDOW *win, const enum Option options[])
         case RETURN_MENU:
             text = "Press BACKSPACE to return to the menu";
             break;
+        case CANCEL:
+            text = "Press BACKSPACE to cancel";
+            break;
         case SELECT_EXERCISE:
             text = "Press ENTER to select an exercise";
+            break;
+        case EDIT_NAME:
+            text = "Press N to edit name";
+            break;
+        case SELECT_STUDY_SET:
+            text = "Press ENTER to select a study set";
+            break;
+        case CREATE_STUDY_SET:
+            text = "Press C to create a study set";
+            break;
+        case MODIFY_STUDY_SET:
+            text = "Press M to modify this study set";
+            break;
+        case CONFIRM_STUDY_SET:
+            text = "Press ENTER to use this study set";
+            break;
+        case START_TYPING_NAME:
+            text = "Press ENTER to start typing name";
+            break;
+        case DONE_WITH_CREATING:
+            text = "Press SPACE when done";
+            break;
+        case CONFIRM_CREATION:
+            text = "Press ENTER to create this study set";
+            break;
+        case FINISH_TYPING_NAME:
+            text = "Press ENTER when finished";
             break;
         case GENERATE_RANDOM:
             text = "Press R to start creating a randomized study set";
             break;
         case VIEW_EXERCISES:
-            text = "Press V to view exercises";
+            text = "Press V to view exercises and study sets";
             break;
         case VIEW_INSTRUCTIONS:
             text = "Press H to for instructions";
@@ -269,6 +299,9 @@ void print_options(WINDOW *win, const enum Option options[])
         case GET_HINT:
             text = "Press H to get a hint";
             break;
+        case STUDY_SETS:
+            text = "Press M to manage study sets";
+            break;
         case RETURN_SETTINGS:
             text = "Press BACKSPACE to return to settings";
             break;
@@ -284,7 +317,6 @@ void print_options(WINDOW *win, const enum Option options[])
         default:
             break;
         }
-
         mvwprintw(win, y--, margin, "%s", text);
     }
     return_cursor(win);

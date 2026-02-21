@@ -23,5 +23,6 @@ typedef enum {
 } ExerciseResult;
 
 extern int last_top_index;
+extern int last_top_index_study_set;
 
 #endif

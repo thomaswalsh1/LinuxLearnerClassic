@@ -15,7 +15,7 @@ CFLAGS = -Wall -Wextra -g \
 	-I./src/config
 
 # Linker flags
-LDFLAGS = -lncurses
+LDFLAGS = -lncurses -lform -lreadline
 
 # Source files (recursive)
 SRCS := $(shell find src -name '*.c')

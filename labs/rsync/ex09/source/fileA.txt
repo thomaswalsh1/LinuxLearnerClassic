@@ -1,0 +1,1 @@
+This is file A for rsync -r (recursive) test.

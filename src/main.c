@@ -8,6 +8,8 @@
 #include "app_state.h"
 
 int last_top_index = 0;
+int last_top_index_study_set = 0;
+StudySet *current_study_set = NULL;
 
 int main(void)
 {
@@ -15,6 +17,7 @@ int main(void)
     initscr();
     raw();
     keypad(stdscr, TRUE);
+    cbreak();
     noecho();
     curs_set(0); // hides the cursor
 
@@ -25,14 +28,34 @@ int main(void)
         use_default_colors(); // optional, but nice
     }
 
-    init_pair(COLOR_TITLE, COLOR_CYAN, -1); 
-    
+    init_pair(COLOR_TITLE, COLOR_CYAN, -1);
+
     // initializing project root
     init_project_root();
 
     ExerciseList exercise_list = load_exercises_from_all();
     exercises = exercise_list.exercises; // unloading exercises to global variable
     exercise_count = exercise_list.count;
+
+    // study set state
+    current_study_set = malloc(sizeof(StudySet));
+    *current_study_set = get_default_study_set();
+    int current_study_set_index = 0;
+
+    // If no default study set is set, enable all exercises
+    int no_study_set = 0;
+    if (current_study_set == NULL || current_study_set->name[0] == '\0' || current_study_set->exercise_count == 0) {
+        no_study_set = 1;
+        free(current_study_set);
+        current_study_set = NULL;
+        // Enable all exercises
+        for (int i = 0; i < exercise_count; ++i) {
+            exercises[i].is_enabled = 1;
+        }
+    } else {
+        // change our exercises by the study set
+        modify_by_study_set();
+    }
 
     // app state
     AppState current_app_state = APP_TITLE;
@@ -88,7 +111,7 @@ int main(void)
             break;
         // exercise list
         case APP_EXERCISE_LIST:
-            current_exercise = run_exercise_list_and_select(&current_exercise_index);
+            current_exercise = run_exercise_list_and_select(&current_exercise_index, &current_study_set_index);
             if (current_exercise != NULL)
             {
                 current_app_state = APP_EXERCISE_METADATA;
@@ -122,29 +145,56 @@ int main(void)
             break;
         // running exercise
         case APP_EXERCISE:
-            if (current_exercise == NULL)
-                current_exercise = &exercises[current_exercise_index];
-            while (current_exercise->is_completed == 1)
+            // Find the next enabled and not completed exercise
+            while (current_exercise_index < exercise_count &&
+                   (!exercises[current_exercise_index].is_enabled ||
+                    exercises[current_exercise_index].is_completed))
             {
-                current_exercise = &exercises[++current_exercise_index];
+                current_exercise_index++;
             }
+
+            if (current_exercise_index >= exercise_count)
+            {
+                int all_done = 1;
+                for (int i = 0; i < exercise_count; ++i)
+                {
+                    if (exercises[i].is_enabled && !exercises[i].is_completed)
+                    {
+                        all_done = 0;
+                        break;
+                    }
+                }
+                if (all_done)
+                {
+                    int ch;
+                    show_all_exercises_completed();
+
+                    while (1)
+                    {
+                        ch = getch();
+                        if (ch == KEY_RESIZE)
+                        {
+                            show_all_exercises_completed();
+                        }
+                        if (ch == 127 || ch == KEY_BACKSPACE)
+                        {
+                            break;
+                        }
+                    }
+                    current_exercise_index = 0;
+                }
+                current_app_state = APP_MAIN_MENU;
+                break;
+            }
+
+            current_exercise = &exercises[current_exercise_index];
             ExerciseResult result = run_exercise(current_exercise);
+
             if (result == ACTION_CONTINUE)
             {
-                int next_index = current_exercise_index + 1;
-                while (next_index < exercise_count && !exercises[next_index].is_enabled)
-                    next_index++;
-
-                if (next_index < exercise_count)
-                {
-                    current_exercise = &exercises[next_index];
-                    current_exercise_index = next_index;
-                    current_app_state = APP_EXERCISE;
-                }
-                else
-                {
-                    current_app_state = APP_MAIN_MENU;
-                }
+                current_exercise_index++;
+                // The loop at the top will skip to the next valid exercise
+                current_app_state = APP_EXERCISE;
             }
             else if (result == ACTION_RETURN)
             {
@@ -186,6 +236,8 @@ int main(void)
                     if (ch2 == '\n' || ch2 == KEY_ENTER)
                     {
                         reset_all_output_files();
+                        current_exercise == NULL;
+                        current_exercise_index = 0;
                         int ch3;
                         show_reset_done();
                         while (1)

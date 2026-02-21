@@ -25,6 +25,18 @@ void reset_all_output_files(void);
 void reset_single_exercise(Exercise *ex);
 
 // road-to-v0.2.0
-Exercise* run_exercise_list_and_select(int *selected_index);
+Exercise* run_exercise_list_and_select(int *selected_index, int *selected_study_set_index);
+
+void launch_sandbox_shell(Exercise *ex);
+
+void modify_by_study_set(void);
+
+StudySet *run_study_set_menu(int *selected_study_set_index);
+
+StudySet *create_new_study_set(void);
+
+char *create_study_set_name(void);
+
+char **get_set_exercises(void);
 
 #endif

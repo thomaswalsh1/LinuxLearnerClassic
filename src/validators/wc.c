@@ -26,65 +26,26 @@ static char* read_first_line(const char *path) {
 }
 
 // Exercise 1: Byte count - verify -c option output
-int validate_wc_bytes(void) {
-    if (!file_exists("output.txt")) return 0;
-    
-    // The file should contain byte count output
-    // Expected: around 120+ bytes for the test file
-    char *line = read_first_line("output.txt");
-    if (!line) return 0;
-    
-    int count = parse_wc_count(line);
-    return count > 0;
+int validate_wc_bytes(Exercise *ex) {
+    return check_first_line(ex->last_command_output, "115 data.txt");
 }
 
 // Exercise 2: Line count - verify -l option output
-int validate_wc_lines(void) {
-    if (!file_exists("output.txt")) return 0;
-    
-    // The file should contain line count output
-    // Expected: 5 lines in the test file
-    char *line = read_first_line("output.txt");
-    if (!line) return 0;
-    
-    int count = parse_wc_count(line);
-    return count == 5;
+int validate_wc_lines(Exercise *ex) {
+    return check_first_line(ex->last_command_output, "5 data.txt");
 }
 
 // Exercise 3: Word count - verify -w option output
-int validate_wc_words(void) {
-    if (!file_exists("output.txt")) return 0;
-    
-    // The file should contain word count output
-    // Expected: around 11 words in the test file
-    char *line = read_first_line("output.txt");
-    if (!line) return 0;
-    
-    int count = parse_wc_count(line);
-    return count > 0 && count == 14;
+int validate_wc_words(Exercise *ex) {
+    return check_first_line(ex->last_command_output, "14 data.txt");
 }
 
 // Exercise 4: Character count - verify -m option output
-int validate_wc_chars(void) {
-    if (!file_exists("output.txt")) return 0;
-    
-    // The file should contain character count output
-    char *line = read_first_line("output.txt");
-    if (!line) return 0;
-    
-    int count = parse_wc_count(line);
-    return count > 0;
+int validate_wc_chars(Exercise *ex) {
+    return check_first_line(ex->last_command_output, "54 data.txt");
 }
 
 // Exercise 5: Max line length - verify -L option output
-int validate_wc_max_line_length(void) {
-    if (!file_exists("output.txt")) return 0;
-    
-    // The file should contain max line length output
-    // The longest line is around 90+ characters
-    char *line = read_first_line("output.txt");
-    if (!line) return 0;
-    
-    int count = parse_wc_count(line);
-    return count > 0;
+int validate_wc_max_line_length(Exercise *ex) {
+    return check_first_line(ex->last_command_output, "93 data.txt");
 }

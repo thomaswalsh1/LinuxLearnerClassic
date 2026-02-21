@@ -27,6 +27,9 @@ labs_old
 #backups for the labs folder
 labs_backup
 
+#saves for testing
+*.set
+
 #todo notes
 todo.txt
 
